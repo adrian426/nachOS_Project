@@ -22,7 +22,10 @@ Semaphore* sH;
 Lock* mutex;
 int cO = 0;
 int cH = 0;
-
+int currentQueryQuantity = 0;
+Semaphore * qA;
+Semaphore * qR;
+bool waiting;
 
 void Philo( void * p ) {
 
@@ -129,10 +132,69 @@ addO(void* arg)
 
 }
 
+//_________________________________________________________________________________
+void queryArrival(void * arg){
+  long i = (long) arg;
+  printf("Event process #%ld\n", i);
+  printf("Current Event: Arrival\n");
+  if(12 == currentQueryQuantity && !waiting){
+    waiting = true;
+    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+    printf("I'm in fear, for there will be a thirteen. I'll proceed to wait.\n");
+    qA->P();
+    currentQueryQuantity++;
+  } else if(12 == currentQueryQuantity && waiting){
+  printf("Current Queries being processed: %d\n",currentQueryQuantity);
+    currentQueryQuantity++;
+    waiting = false;
+    qA->V();
+    printf("There's my savior, thanks to him the thirteen is gone, for now...\n");
+  } else if(14 == currentQueryQuantity && waiting){
+    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+    currentQueryQuantity++;
+    waiting = false;
+    qR->V();
+    printf("There's my savior, thanks to him the thirteen is gone, for now...\n");
+  } else {
+    currentQueryQuantity++;
+    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+  }
+}
+
+void queryRetrieval(void * arg){
+  long i = (long) arg;
+  printf("Event process #%ld\n", i);
+  printf("Current Event: Retrieval\n");
+  if(14 == currentQueryQuantity && !waiting){
+    waiting = true;
+    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+    printf("I'm in fear, for there will be a thirteen. I'll proceed to wait.\n");
+    qR->P();
+    currentQueryQuantity--;
+  } else if(14 == currentQueryQuantity && waiting){
+    currentQueryQuantity--;
+    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+    printf("There's my savior, thanks to him the thirteen is gone, for now...\n");
+    waiting = false;
+    qR->V();
+  } else if(12 == currentQueryQuantity && waiting){
+    currentQueryQuantity--;
+    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+    waiting = false;
+    qA->V();
+    printf("There's my savior, thanks to him the thirteen is gone, for now...\n");
+  } else if(currentQueryQuantity > 0){
+    currentQueryQuantity--;
+    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+  }
+}
 
 void
 ThreadTest()
-{/*Thread * Ph;
+{
+//__________________________________________________________________________________
+  /*Dinnign philosophers example
+  Thread * Ph;
   DEBUG('t', "Entering SimpleTest");
 
 
@@ -144,6 +206,8 @@ ThreadTest()
     }
     return;
 */
+//___________________________________________________________________________________
+/* Water maker example.
     sO = new Semaphore("O",1);
     sH = new Semaphore("H",1);
     mutex = new Lock("L");
@@ -156,6 +220,8 @@ ThreadTest()
           newThread->Fork(addO, (void*) k);
         }
     }
+*/
+//____________________________________________________________________________________
 /*
     for ( int k=1; k<=5; k++) {
       char* threadname = new char[100];
@@ -165,4 +231,20 @@ ThreadTest()
     }
         SimpleThread( (void*)"Hilo 0");
 */
+
+  //__________________________________________________________________________________
+  //Gullible DataBase Exercise.
+  qA = new Semaphore("QA",1);
+  qR = new Semaphore("QR",1);
+  waiting = false;
+  currentQueryQuantity = 0;
+  for ( long k = 0; k < 40; k++ ) {
+    Thread *newThread = new Thread("DBMS");
+      if((rand() % 3)  != 0){
+        newThread->Fork(queryArrival, (void*) k);
+      } else {
+        newThread->Fork(queryRetrieval, (void*) k);
+      }
+  }
+  //}
 }
