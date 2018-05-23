@@ -183,9 +183,13 @@ void queryRetrieval(void * arg){
     waiting = false;
     qA->V();
     printf("There's my savior, thanks to him the thirteen is gone, for now...\n");
-  } else if(currentQueryQuantity > 0){
-    currentQueryQuantity--;
-    printf("Current Queries being processed: %d\n",currentQueryQuantity);
+  } else {
+    if(currentQueryQuantity > 0){
+      currentQueryQuantity--;
+      printf("Current Queries being processed: %d\n",currentQueryQuantity);
+    } else {
+      printf("I can't give anything since there are no queries being processed.\n");
+    }
   }
 }
 
@@ -238,12 +242,12 @@ ThreadTest()
   qR = new Semaphore("QR",1);
   waiting = false;
   currentQueryQuantity = 0;
-  for ( long k = 0; k < 40; k++ ) {
+  for ( long k = 0; k < 42069; k++ ) {
     Thread *newThread = new Thread("DBMS");
-      if((rand() % 3)  != 0){
+      if((rand() % 2)  != 0){
         newThread->Fork(queryArrival, (void*) k);
       } else {
-        newThread->Fork(queryRetrieval, (void*) k);
+          newThread->Fork(queryRetrieval, (void*) k);
       }
   }
   //}
