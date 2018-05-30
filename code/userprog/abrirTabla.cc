@@ -7,10 +7,8 @@ NachosOpenFilesTable::NachosOpenFilesTable(){
 }       // Initialize
 
 NachosOpenFilesTable::~NachosOpenFilesTable(){
-  if(usage == 0){
     delete[] openFiles;
     delete openFilesMap;
-  }
 }     // De-allocate
 
 int NachosOpenFilesTable::Open( int UnixHandle ){
@@ -34,8 +32,7 @@ int NachosOpenFilesTable::Close( int NachosHandle ){
 }      // Unregister the file handle
 
 bool NachosOpenFilesTable::isOpened( int NachosHandle ){
-  bool rst = openFilesMap->Test(NachosHandle);
-  return rst;
+  return openFilesMap->Test(NachosHandle);;
 }
 
 int NachosOpenFilesTable::getUnixHandle( int NachosHandle ){
@@ -51,8 +48,8 @@ void NachosOpenFilesTable::delThread(){
 }	// If a user thread is using this table, delete it
 
 void NachosOpenFilesTable::Print(){
-  int index = 3;
-  while(index<usage+3){
+  int index = 0;
+  while(index<usage){
     printf("%d\n",openFiles[index]);
   }
 }               // Print contents

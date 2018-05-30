@@ -65,15 +65,18 @@ returnFromSystemCall()
 //Begin of exception handling.
 void Nachos_Halt(){
  DEBUG('a', "Shutdown, initiated by user program.\n");
+
+ printf("Halting.\n");
  interrupt->Halt();
 }
 
-void Nachos_Open(){
+void Nachos_Open(){//Ya funca :D
   char fileName[MAPSIZE];
   int k = 1;
   int i = -1;
   int r4 = machine->ReadRegister(4);
   int rst = -1;
+  printf("Opening File.\n");
   do{
     machine->ReadMem(r4,1,& k);
     r4++;
@@ -87,10 +90,11 @@ void Nachos_Open(){
   } else {
     close(unixID);
   }
+  machine->WriteRegister(2,rst);
   returnFromSystemCall();
 }
 
-void Nachos_Write(){
+void Nachos_Write(){//algo malo
   /* System call definition described to user
         void Write(
 		char *buffer,	// Register 4
@@ -98,18 +102,23 @@ void Nachos_Write(){
 		 OpenFileId id	// Register 6
 	);
 */
+printf("Writing.\n");
   Semaphore *s = new Semaphore("Input Handler",0);
-  char buffer[MAPSIZE];
   int size = machine->ReadRegister( 5 );	// Read size to write
+  char *buffer = new char[size];
 // buffer = Read data from address given by user;
   OpenFileId id = machine->ReadRegister( 6 );	// Read file descriptor
+  int r4 = machine->ReadRegister(4);
   int currentChar = 0;
   int index = 0;
   while(index < size){
-    machine->ReadMem(id, size, &currentChar);
+    machine->ReadMem(r4, 1, &currentChar);
     buffer[index] = (char) currentChar;
+    r4++;
+    index++;
   }
-  buffer[++index] = '\0';
+  buffer[index] = '\0';
+  printf("%s",buffer);
 // Need a semaphore to synchronize access to console
   s->P();
 // Console->P();
@@ -140,7 +149,6 @@ void Nachos_Write(){
       machine->WriteRegister(2,count);
 			// Return the number of chars written to user, via r2
 			break;
-
 	}
 	// Update simulation stats, see details in Statistics class in machine/stats.cc
   s->V();
@@ -151,8 +159,8 @@ void Nachos_Write(){
 void
 ExceptionHandler(ExceptionType which)
 {
+printf("Handling.\n");
     int type = machine->ReadRegister(2);
-
     if ((which == SyscallException)) {
       switch(type){
         case SC_Halt:
@@ -163,6 +171,12 @@ ExceptionHandler(ExceptionType which)
          break;
          case SC_Write:
           Nachos_Write();
+         break;
+         case SC_Create:
+         returnFromSystemCall();
+         break;
+         case SC_Read:
+         returnFromSystemCall();
          break;
       }
     } else {
