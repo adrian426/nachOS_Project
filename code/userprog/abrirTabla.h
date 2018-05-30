@@ -1,5 +1,10 @@
 #include "bitmap.h"
-#define mapSize 128
+#include "syscall.h"
+#include "system.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#define MAPSIZE 128
 class NachosOpenFilesTable {
   public:
     NachosOpenFilesTable();       // Initialize

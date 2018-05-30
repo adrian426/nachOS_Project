@@ -1,48 +1,58 @@
 #include "abrirTabla.h"
 
 NachosOpenFilesTable::NachosOpenFilesTable(){
-  openFiles = new int[mapSize];
-  openFilesMap = new BitMap(mapSize);
+  openFiles = new int[MAPSIZE];
+  openFilesMap = new BitMap(MAPSIZE);
   usage = 0;
 }       // Initialize
 
 NachosOpenFilesTable::~NachosOpenFilesTable(){
-  delete[] openFiles;
-  delete openFilesMap;
+  if(usage == 0){
+    delete[] openFiles;
+    delete openFilesMap;
+  }
 }     // De-allocate
 
 int NachosOpenFilesTable::Open( int UnixHandle ){
-  int o = 0;
-  return o;
+  int rst = -1;
+  rst = openFilesMap->Find();
+  if(rst != -1){
+    openFiles[rst] = UnixHandle;
+  }
+  return rst;
 
 } // Register the file handle
 
 int NachosOpenFilesTable::Close( int NachosHandle ){
-  int o = 0;
-  return o;
+  int rst = -1;
+  if(openFilesMap->Test(NachosHandle)){
+    openFilesMap->Clear(NachosHandle);
+    rst = true;
+  }
+  return rst;
 
 }      // Unregister the file handle
 
 bool NachosOpenFilesTable::isOpened( int NachosHandle ){
-  bool o = false;
-  return o;
+  bool rst = openFilesMap->Test(NachosHandle);
+  return rst;
 }
 
 int NachosOpenFilesTable::getUnixHandle( int NachosHandle ){
-  int handleIndex;
-  return handleIndex;
+  return (openFilesMap->Test(NachosHandle))?openFiles[NachosHandle]:-1;
 }
 
 void NachosOpenFilesTable::addThread(){
   usage++;
-
 }		// If a user thread is using this table, add it
 
 void NachosOpenFilesTable::delThread(){
   usage--;
-
 }	// If a user thread is using this table, delete it
 
-void Print(){
-
+void NachosOpenFilesTable::Print(){
+  int index = 3;
+  while(index<usage+3){
+    printf("%d\n",openFiles[index]);
+  }
 }               // Print contents

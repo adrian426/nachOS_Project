@@ -211,7 +211,7 @@ ThreadTest()
     return;
 */
 //___________________________________________________________________________________
-/* Water maker example.
+// Water maker example.
     sO = new Semaphore("O",1);
     sH = new Semaphore("H",1);
     mutex = new Lock("L");
@@ -224,7 +224,6 @@ ThreadTest()
           newThread->Fork(addO, (void*) k);
         }
     }
-*/
 //____________________________________________________________________________________
 /*
     for ( int k=1; k<=5; k++) {
@@ -237,7 +236,7 @@ ThreadTest()
 */
 
   //__________________________________________________________________________________
-  //Gullible DataBase Exercise.
+  /*//Gullible DataBase Exercise.
   qA = new Semaphore("QA",1);
   qR = new Semaphore("QR",1);
   waiting = false;
@@ -249,6 +248,6 @@ ThreadTest()
       } else {
           newThread->Fork(queryRetrieval, (void*) k);
       }
-  }
+  }*/
   //}
 }

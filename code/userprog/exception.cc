@@ -20,11 +20,13 @@
 // Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
-
+#include <unistd.h>
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
-
+#include "../threads/synch.h"
+#include "abrirTabla.h"
+NachosOpenFilesTable *nachosTable = new NachosOpenFilesTable();
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -67,17 +69,84 @@ void Nachos_Halt(){
 }
 
 void Nachos_Open(){
-  char fileName[128];
+  char fileName[MAPSIZE];
   int k = 1;
-  int i = 0;
+  int i = -1;
   int r4 = machine->ReadRegister(4);
+  int rst = -1;
   do{
     machine->ReadMem(r4,1,& k);
     r4++;
-    fileName[i++] = k;
+    i++;
+    fileName[i] = (char) k;
   }while(k!=0);
-  fileName[i] = '\0';
+  fileName[++i] = '\0';
+  int unixID = open(fileName, O_RDWR);
+  if(unixID != -1){
+    rst = nachosTable->Open(unixID);
+  } else {
+    close(unixID);
+  }
+  returnFromSystemCall();
 }
+
+void Nachos_Write(){
+  /* System call definition described to user
+        void Write(
+		char *buffer,	// Register 4
+		int size,	// Register 5
+		 OpenFileId id	// Register 6
+	);
+*/
+  Semaphore *s = new Semaphore("Input Handler",0);
+  char buffer[MAPSIZE];
+  int size = machine->ReadRegister( 5 );	// Read size to write
+// buffer = Read data from address given by user;
+  OpenFileId id = machine->ReadRegister( 6 );	// Read file descriptor
+  int currentChar = 0;
+  int index = 0;
+  while(index < size){
+    machine->ReadMem(id, size, &currentChar);
+    buffer[index] = (char) currentChar;
+  }
+  buffer[++index] = '\0';
+// Need a semaphore to synchronize access to console
+  s->P();
+// Console->P();
+	switch (id) {
+		case  ConsoleInput:	// User could not write to standard input
+			machine->WriteRegister( 2, -1 );
+			break;
+		case  ConsoleOutput:
+			buffer[ size ] = 0;
+			printf( "%s", buffer );
+		break;
+		case ConsoleError:	// This trick permits to write integers to console
+			printf( "%d\n", machine->ReadRegister( 4 ) );
+			break;
+		default:	// All other opened files
+			// Verify if the file is opened, if not return -1 in r2
+      if(!nachosTable->isOpened(id)){
+        machine->WriteRegister(2,-1);
+      }
+			// Get the unix handle from our table for open files
+      int unixHandle = nachosTable->getUnixHandle(id);
+			// Do the write to the already opened Unix file
+      write(unixHandle,(void *)  buffer, size);
+      int count = 0;
+      while(buffer[count] != '\0'){
+        count++;
+      }
+      machine->WriteRegister(2,count);
+			// Return the number of chars written to user, via r2
+			break;
+
+	}
+	// Update simulation stats, see details in Statistics class in machine/stats.cc
+  s->V();
+  returnFromSystemCall();		// Update the PC registers
+
+}       // Nachos_Write}
 
 void
 ExceptionHandler(ExceptionType which)
@@ -91,6 +160,9 @@ ExceptionHandler(ExceptionType which)
          break;
          case SC_Open:
           Nachos_Open();
+         break;
+         case SC_Write:
+          Nachos_Write();
          break;
       }
     } else {
