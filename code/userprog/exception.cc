@@ -261,8 +261,8 @@ void NachosFork() {			// System call 9
 	// We (kernel)-Fork to a new method to execute the child code
 	// Pass the user routine address, now in register 4, as a parameter
 	// Note: in 64 bits register 4 need to be casted to (void *)
-  long r4 = machine->ReadRegister( 4 ) ;
-	newT->Fork( NachosForkThread, (void*) r4);
+  //long r4 = machine->ReadRegister( 4 ) ;
+	newT->Fork( NachosForkThread, (void*) machine->ReadRegister( 4 ));
 
 	DEBUG( 'u', "Exiting Fork System call\n" );
 }	// Kernel_Fork

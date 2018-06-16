@@ -69,7 +69,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     	SwapHeader(&noffH);
     ASSERT(noffH.noffMagic == NOFFMAGIC);
 
-// how big is address space?
+		// how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size
 			+ UserStackSize;	// we need to increase the size
 						// to leave room for the stack
@@ -134,14 +134,17 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 			}
     }
+		state = new int[NumTotalRegs + 4];
 }
 
 AddrSpace::AddrSpace(AddrSpace *space){
     ASSERT(UserStackSize/PageSize <= memoryPagesMap->NumClear());
     this->pageTable = new TranslationEntry[numPages];
     this->numPages = space->numPages;
+		state = new int[NumTotalRegs + 4];
+		unsigned int stackPages = divRoundUp(UserStackSize,PageSize);
 
-    for(int i = 0; i < numPages-UserStackSize/PageSize; ++i){
+    for(unsigned int i = 0; i < numPages-stackPages; i++){
         this->pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
         this->pageTable[i].physicalPage = space->pageTable[i].physicalPage;
         this->pageTable[i].valid = space->pageTable[i].valid;
@@ -149,11 +152,10 @@ AddrSpace::AddrSpace(AddrSpace *space){
         this->pageTable[i].dirty = space->pageTable[i].dirty;
         this->pageTable[i].readOnly = space->pageTable[i].readOnly;
     }
-
-    for(int i = numPages-UserStackSize/PageSize; i < numPages; ++i){
+    for(unsigned int i = (numPages-stackPages); i < numPages; i++){
         this->pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
         this->pageTable[i].physicalPage = memoryPagesMap->Find();
-        bzero(machine->mainMemory+pageTable[i].physicalPage*PageSize, PageSize);
+        //bzero(machine->mainMemory+pageTable[i].physicalPage*PageSize, PageSize);
         this->pageTable[i].valid = true;
         this->pageTable[i].use = false;
         this->pageTable[i].dirty = false;

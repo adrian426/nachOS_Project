@@ -38,6 +38,7 @@ class AddrSpace {
     unsigned int numPages;		// Number of pages in the virtual
 					// address space
     unsigned int availablePages = NumPhysPages;
+    int* state;
 
     //struct
 };
