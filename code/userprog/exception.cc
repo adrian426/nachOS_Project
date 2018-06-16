@@ -261,7 +261,7 @@ void NachosFork() {			// System call 9
 	// We (kernel)-Fork to a new method to execute the child code
 	// Pass the user routine address, now in register 4, as a parameter
 	// Note: in 64 bits register 4 need to be casted to (void *)
-    long r4 = machine->ReadRegister( 4 ) ;
+  long r4 = machine->ReadRegister( 4 ) ;
 	newT->Fork( NachosForkThread, (void*) r4);
 
 	DEBUG( 'u', "Exiting Fork System call\n" );
@@ -305,38 +305,31 @@ void NachosSemWait(){
     machine->WriteRegister(2, resultado);
 }
 
-void ExecThread(void* p){
-    OpenFile *file = fileSystem->Open((const char *)p);
-    AddrSpace *addrSpace;
+void NachosExecThread(void *file) {
 
-    if (file == NULL) {
-        printf("Unable to open file %s\n", p);
-        return;
-    }
-    addrSpace = new AddrSpace(file);
-    currentThread->space = addrSpace;
+  //Esto lo saco de progtest.
+    currentThread->space = new AddrSpace((OpenFile *) file);
 
-    delete file;			// close file
+    currentThread->space->InitRegisters();             // set the initial register values
+    currentThread->space->RestoreState();              // load page table register
 
-    currentThread->space->InitRegisters();		// set the initial register values
-    currentThread->space->RestoreState();		// load page table register
-
+    // Set the return address for this thread to the same as the main thread
+    // This will lead this thread to call the exit system call and finish
     machine->WriteRegister(RetAddrReg, 4);
 
-    machine->Run();			// jump to the user progam
-    ASSERT(false);			// machine->Run never returns;
-    // the address space exits
-    // by doing the syscall "exit"
+    machine->Run();                     // jump to the user program
+    ASSERT(false);
 }
 
-void NachosExec(){
-  int r4 = machine->ReadRegister(4);
-  char* buffer = parToCharPtr(r4);
-  Thread* t = new Thread("Executing new process.");
-  t->Fork(ExecThread,(void*) buffer );
-  cout << buffer << endl;
-  ASSERT(false);
+void NachosExec() {
+    cout<<"Entrando a Exec.\n";
+    char *buffer = parToCharPtr(machine->ReadRegister(4));
+    Thread *t = new Thread("Child Thread");
+    t->Fork(NachosExecThread, (void *) fileSystem->Open(buffer));
+    //machine->WriteRegister(2, id);
+    cout<<"Saliendo de Exec.\n";
 }
+
 
 void NachosExit(){
     int status = machine->ReadRegister(4);
@@ -345,8 +338,7 @@ void NachosExit(){
 }
 
 void NachosJoin(){
-    int id = machine->ReadRegister(4);
-
+    //int id = machine->ReadRegister(4);
 }
 
 void ExceptionHandler(ExceptionType which) {
