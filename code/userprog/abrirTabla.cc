@@ -17,7 +17,7 @@ int NachosOpenFilesTable::Open( int UnixHandle ){
   if(rst != -1){
     openFiles[rst] = UnixHandle;
   }
-  return rst
+  return rst;
 } // Register the file handle
 
 int NachosOpenFilesTable::Close( int NachosHandle ){
@@ -31,7 +31,7 @@ int NachosOpenFilesTable::Close( int NachosHandle ){
 }      // Unregister the file handle
 
 bool NachosOpenFilesTable::isOpened( int NachosHandle ){
-  return openFilesMap->Test(NachosHandle);;
+  return openFilesMap->Test(NachosHandle);
 }
 
 int NachosOpenFilesTable::getUnixHandle( int NachosHandle ){

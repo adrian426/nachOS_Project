@@ -20,13 +20,19 @@
 // Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
-#include <unistd.h>
+
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
-#include "../threads/synch.h"
-#include "abrirTabla.h"
-NachosOpenFilesTable *nachosTable = new NachosOpenFilesTable();
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <iostream>
+using namespace std;
+void StartProcess(const char* p);
+Semaphore* ConsoleSem = new Semaphore("Console",1);
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -49,138 +55,377 @@ NachosOpenFilesTable *nachosTable = new NachosOpenFilesTable();
 //	"which" is the kind of exception.  The list of possible exceptions
 //	are in machine.h.
 //----------------------------------------------------------------------
-
-
-void
-returnFromSystemCall()
-{
-  int pc, npc;
-  pc = machine->ReadRegister( PCReg );
-  npc = machine->ReadRegister( NextPCReg );
-  machine->WriteRegister( PrevPCReg, pc );        // PrevPC <- PC
-  machine->WriteRegister( PCReg, npc );           // PC <- NextPC
-  machine->WriteRegister( NextPCReg, npc + 4 );   // NextPC <- NextPC + 4
-}       // returnFromSystemCall
-
-//Begin of exception handling.
-void Nachos_Halt(){
- DEBUG('a', "Shutdown, initiated by user program.\n");
-
- printf("Halting.\n");
- interrupt->Halt();
+void NachosHalt(){
+    DEBUG('a', "Shutdown, initiated by user program.\n");
+    interrupt->Halt();
 }
 
-void Nachos_Open(){//Ya funca :D
-  char fileName[MAPSIZE];
-  int k = 1;
-  int i = -1;
+void returnFromSystemCall() {
+
+    int pc, npc;
+
+    pc = machine->ReadRegister(PCReg);
+    npc = machine->ReadRegister(NextPCReg);
+    machine->WriteRegister(PrevPCReg, pc);        // PrevPC <- PC
+    machine->WriteRegister(PCReg, npc);           // PC <- NextPC
+    machine->WriteRegister(NextPCReg, npc + 4);   // NextPC <- NextPC + 4
+
+}       // returnFromSystemCall
+
+char * parToCharPtr(int position){
+    char * name = new char[128];
+    int currentChar = 0;
+    int i = 0;
+    do{
+        machine->ReadMem(position, 1, &currentChar);
+        name[i] = (char)currentChar;
+        position++;
+        i++;
+    }while((char)currentChar != '\0');
+    return name;
+}
+
+void NachosOpen(){
+  char* path;
+  int rst;
   int r4 = machine->ReadRegister(4);
-  int rst = -1;
-  printf("Opening File.\n");
-  do{
-    machine->ReadMem(r4,1,& k);
-    r4++;
-    i++;
-    fileName[i] = (char) k;
-  }while(k!=0);
-  fileName[++i] = '\0';
-  int unixID = open(fileName, O_RDWR);
+  path = parToCharPtr(r4);
+  int unixID = open(path, O_RDWR);
+  cout<<unixID<<"\n";
   if(unixID != -1){
-    rst = nachosTable->Open(unixID);
+    rst = openFilesTable->Open(unixID);
   } else {
     close(unixID);
   }
   machine->WriteRegister(2,rst);
-  returnFromSystemCall();
 }
 
-void Nachos_Write(){//algo malo
-  /* System call definition described to user
+void NachosClose(){
+    cout << "Entrando Close" << '\n';
+    //OpenFileID id -> Register 4
+    int NachosHandle = machine->ReadRegister(4); //Reads the NachosHandle passed
+    int UnixHandle = openFilesTable->getUnixHandle(NachosHandle); //Gets the unix handle
+    int result = -1;
+    if(-1 != UnixHandle){ //It is open.
+        result = close(UnixHandle);
+        if(-1 != result){
+            result = openFilesTable->Close(NachosHandle);
+        }
+    }
+    machine->WriteRegister(4, result);
+    cout << "Saliendo Close" << '\n';
+}
+
+void NachosCreate(){
+    cout << "Entrando Create" << '\n';
+    char * path = parToCharPtr(machine->ReadRegister(4)); //Returns path as char *
+    int result = creat(path, S_IRWXU); //Create file and open it with read, write and execute rights.
+    machine->WriteRegister(4, result);
+    cout << "Saliendo create" << '\n';
+}
+
+void NachosWrite() {                   // System call 7
+
+/* System call definition described to user
         void Write(
 		char *buffer,	// Register 4
-		int size,	// Register 5
+		int size,	    // Register 5
 		 OpenFileId id	// Register 6
 	);
 */
-printf("Writing.\n");
-  Semaphore *s = new Semaphore("Input Handler",0);
-  int size = machine->ReadRegister( 5 );	// Read size to write
-  char *buffer = new char[size];
-// buffer = Read data from address given by user;
-  OpenFileId id = machine->ReadRegister( 6 );	// Read file descriptor
+    cout << "Entrando Write" << '\n';
+    char * buffer = NULL;
+    int size = machine->ReadRegister( 5 );	// Read size to write
+
+    // buffer = Read data from address given by user;
+    buffer = parToCharPtr(machine->ReadRegister(4));
+    OpenFileId id = machine->ReadRegister( 6 );	// Read file descriptor
+    // Need a semaphore to synchronize access to console
+    ConsoleSem->P();
+
+    switch (id) {
+        case  ConsoleInput:	// User could not write to standard input
+            machine->WriteRegister( 2, -1 );
+            break;
+        case  ConsoleOutput:
+            buffer[ size ] = 0;
+            printf( "%s", buffer );
+            break;
+        case ConsoleError:	// This trick permits to write integers to console
+            printf( "%d\n", machine->ReadRegister( 4 ) );
+            break;
+        default:	// All other opened files
+            // Verify if the file is opened, if not return -1 in r2
+            if(openFilesTable->isOpened(id)){
+                // Get the unix handle from our table for open files
+                int UnixHandle = openFilesTable->getUnixHandle(id);
+                // Do the write to the already opened Unix file
+                int sizeWritten = static_cast<int>(write(UnixHandle, buffer, size));
+                // Return the number of chars written to user, via r2
+                machine->WriteRegister(2, sizeWritten);
+            }else{
+                machine->WriteRegister(2, -1);
+            }
+            break;
+
+    }
+    // Update simulation stats, see details in Statistics class in machine/stats.c
+    // NO SE COMO SE ACTUALIZAN LOS STATS
+    ConsoleSem->V();
+
+    cout << "Saliendo write" << '\n';
+
+}       // NachosWrite
+
+void NachosRead(){
+    /* System call definition described to user
+        void Read(
+		char *buffer,	// Register 4
+		int size,	    // Register 5
+		OpenFileId id	// Register 6
+	);
+*/
+    cout << "Entrando Read" << '\n';
+    int position = machine->ReadRegister(4);
+    int size = machine->ReadRegister( 5 );	// Read size to read
+    char buffer[size]; //Buffer to store what is read
+    OpenFileId id = machine->ReadRegister( 6 );	// Read file descriptor
+    cout << id << "id\n";
+    // Need a semaphore to synchronize access to console
+    //ConsoleSem->P();
+    //cout << "1" << '\n';
+    bool standard = (id == ConsoleInput || id == ConsoleOutput || id == ConsoleOutput);
+    int sizeRead = -1;
+
+    //Reads and stores into buffer.
+    if(standard){
+        cout << "holi2\n";
+        sizeRead = static_cast<int>(read(openFilesTable->getUnixHandle(id), buffer, size));
+    }else{
+        if(openFilesTable->isOpened(id)) {
+            cout << "holi3\n";
+            sizeRead = static_cast<int>(read(openFilesTable->getUnixHandle(id), buffer, size));
+        }
+    }
+
+    //if there was no error
+    if(-1 != sizeRead){
+        for(int i = 0; i < size; ++i){
+            machine->WriteMem(position++, 1, (int)buffer[i]);
+        }
+    }
+    machine->WriteRegister(2, sizeRead); //Return the number of chars read, via r2
+    // Update simulation stats, see details in Statistics class in machine/stats.c
+    // NO SE COMO SE ACTUALIZAN LOS STATS
+    //ConsoleSem->V();
+    cout << sizeRead << '\n';
+    cout << "Saliendo read" << '\n';
+}
+
+//void NachosForkThread( int p ) { // for 32 bits version
+void NachosForkThread( void * p ) { // for 64 bits version
+
+    AddrSpace *space;
+
+    space = currentThread->space;
+    space->InitRegisters();             // set the initial register values
+    space->RestoreState();              // load page table register
+
+// Set the return address for this thread to the same as the main thread
+// This will lead this thread to call the exit system call and finish
+    machine->WriteRegister( RetAddrReg, 4 );
+
+    machine->WriteRegister( PCReg, (long) p );
+    machine->WriteRegister( NextPCReg, (long) p + 4 );
+
+    machine->Run();                     // jump to the user progam
+    ASSERT(false);
+
+}
+
+void NachosFork() {			// System call 9
+	DEBUG( 'u', "Entering Fork System call\n" );
+	// We need to create a new kernel thread to execute the user thread
+	Thread * newT = new Thread( "child to execute Fork code" );
+
+	// We need to share the Open File Table structure with this new child
+
+	// Child and father will also share the same address space, except for the stack
+	// Text, init data and uninit data are shared, a new stack area must be created
+	// for the new child
+	// We suggest the use of a new constructor in AddrSpace class,
+	// This new constructor will copy the shared segments (space variable) from currentThread, passed
+	// as a parameter, and create a new stack for the new child
+	newT->space = new AddrSpace( currentThread->space );
+
+	// We (kernel)-Fork to a new method to execute the child code
+	// Pass the user routine address, now in register 4, as a parameter
+	// Note: in 64 bits register 4 need to be casted to (void *)
+    long r4 = machine->ReadRegister( 4 ) ;
+	newT->Fork( NachosForkThread, (void*) r4);
+
+	DEBUG( 'u', "Exiting Fork System call\n" );
+}	// Kernel_Fork
+
+void NachosYield(){
+    currentThread->Yield();
+}
+
+void NachosSemCreate(){
+    int initVal = machine->ReadRegister(4);
+    int id = tablaSemaforos->crearSem(initVal);
+    machine->WriteRegister(2, id);
+}
+
+void NachosSemDestroy(){
+    int id = machine->ReadRegister(4);
+    int destruido = tablaSemaforos->destruirSem(id); //Si no se pudo destruir porque no existía, devuelve un -1
+    machine->WriteRegister(2, destruido);
+}
+
+void NachosSemSignal(){
+    int resultado = -1;
+    int id = machine->ReadRegister(4);
+    Semaphore* sem = tablaSemaforos->getSem(id);
+    if(sem != nullptr){ //Si el semáforo existe
+        sem->V();
+        resultado = 1;
+    }
+    machine->WriteRegister(2, resultado);
+}
+
+void NachosSemWait(){
+    int resultado = -1;
+    int id = machine->ReadRegister(4);
+    Semaphore* sem = tablaSemaforos->getSem(id);
+    if(sem != nullptr){ //Si el semáforo existe
+        sem->P();
+        resultado = 1;
+    }
+    machine->WriteRegister(2, resultado);
+}
+
+void ExecThread(void* p){
+    OpenFile *file = fileSystem->Open((const char *)p);
+    AddrSpace *addrSpace;
+
+    if (file == NULL) {
+        printf("Unable to open file %s\n", p);
+        return;
+    }
+    addrSpace = new AddrSpace(file);
+    currentThread->space = addrSpace;
+
+    delete file;			// close file
+
+    currentThread->space->InitRegisters();		// set the initial register values
+    currentThread->space->RestoreState();		// load page table register
+
+    machine->WriteRegister(RetAddrReg, 4);
+
+    machine->Run();			// jump to the user progam
+    ASSERT(false);			// machine->Run never returns;
+    // the address space exits
+    // by doing the syscall "exit"
+}
+
+void NachosExec(){
   int r4 = machine->ReadRegister(4);
-  int currentChar = 0;
-  int index = 0;
-  while(index < size){
-    machine->ReadMem(r4, 1, &currentChar);
-    buffer[index] = (char) currentChar;
-    r4++;
-    index++;
-  }
-  buffer[index] = '\0';
-  printf("%s",buffer);
-// Need a semaphore to synchronize access to console
-  s->P();
-// Console->P();
-	switch (id) {
-		case  ConsoleInput:	// User could not write to standard input
-			machine->WriteRegister( 2, -1 );
-			break;
-		case  ConsoleOutput:
-			buffer[ size ] = 0;
-			printf( "%s", buffer );
-		break;
-		case ConsoleError:	// This trick permits to write integers to console
-			printf( "%d\n", machine->ReadRegister( 4 ) );
-			break;
-		default:	// All other opened files
-			// Verify if the file is opened, if not return -1 in r2
-      if(!nachosTable->isOpened(id)){
-        machine->WriteRegister(2,-1);
-      }
-			// Get the unix handle from our table for open files
-      int unixHandle = nachosTable->getUnixHandle(id);
-			// Do the write to the already opened Unix file
-      write(unixHandle,(void *)  buffer, size);
-      int count = 0;
-      while(buffer[count] != '\0'){
-        count++;
-      }
-      machine->WriteRegister(2,count);
-			// Return the number of chars written to user, via r2
-			break;
-	}
-	// Update simulation stats, see details in Statistics class in machine/stats.cc
-  s->V();
-  returnFromSystemCall();		// Update the PC registers
+  char* buffer = parToCharPtr(r4);
+  Thread* t = new Thread("Executing new process.");
+  t->Fork(ExecThread,(void*) buffer );
+  cout << buffer << endl;
+  ASSERT(false);
+}
 
-}       // Nachos_Write}
+void NachosExit(){
+    int status = machine->ReadRegister(4);
+    ASSERT(status == 0);
+    currentThread->Finish();
+}
 
-void
-ExceptionHandler(ExceptionType which)
-{
-printf("Handling.\n");
+void NachosJoin(){
+    int id = machine->ReadRegister(4);
+
+}
+
+void ExceptionHandler(ExceptionType which) {
     int type = machine->ReadRegister(2);
     if ((which == SyscallException)) {
-      switch(type){
-        case SC_Halt:
-          Nachos_Halt();
-         break;
-         case SC_Open:
-          Nachos_Open();
-         break;
-         case SC_Write:
-          Nachos_Write();
-         break;
-         case SC_Create:
-         returnFromSystemCall();
-         break;
-         case SC_Read:
-         returnFromSystemCall();
-         break;
-      }
+        switch (type) {
+            case SC_Halt: {
+                NachosHalt();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Open: {
+                NachosOpen();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Write: {
+                NachosWrite();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Read: {
+                NachosRead();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Create:{
+                NachosCreate();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Close:{
+                NachosClose();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Exit:{
+                NachosExit();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Fork:{
+              NachosFork();
+              returnFromSystemCall();
+              break;
+            }
+            case SC_Yield:{
+                NachosYield();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_SemCreate:{
+                NachosSemCreate();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_SemDestroy:{
+                NachosSemDestroy();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_SemSignal:{
+                NachosSemSignal();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_SemWait:{
+                NachosSemWait();
+                returnFromSystemCall();
+                break;
+            }
+            case SC_Exec:{
+              NachosExec();
+              returnFromSystemCall();
+              break;
+            }
+        }
     } else {
-	      printf("Unexpected user mode exception %d %d\n", which, type);
-	      ASSERT(false);
+        printf("Unexpected user mode exception %d %d\n", which, type);
+        ASSERT(false);
     }
 }
