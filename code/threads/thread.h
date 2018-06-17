@@ -39,6 +39,10 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include <list>
+#include "synch.h"
+class Semaphore;
+using namespace std;
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -99,6 +103,22 @@ class Thread {
     const char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
 
+    int id;
+
+    ThreadStatus getStatus();
+    void setDad(Thread * t);
+    Thread * getDad();
+    void addSon (Thread * t);
+    void releaseSons();
+    void releaseSon(Thread *t);
+    Thread * getSon(int id);
+    bool isZombie();
+    void setZombie(bool zombie);
+    int getExitStatus();
+    void setExitStatus(int status);
+    void Wait();
+    void Signal();
+
   private:
     // some of the private data for this class is listed above
 
@@ -111,6 +131,12 @@ class Thread {
     void StackAllocate(VoidFunctionPtr func, void* arg);
     					// Allocate a stack for thread.
 					// Used internally by Fork()
+
+    list<Thread *> sons;
+    Thread * dad;
+    Semaphore * sem;
+    int exitStatus;
+    bool zombie;
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers --
@@ -141,3 +167,6 @@ void SWITCH(Thread *oldThread, Thread *newThread);
 }
 
 #endif // THREAD_H
+
+
+

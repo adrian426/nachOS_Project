@@ -325,6 +325,7 @@ void NachosExec() {
     cout<<"Entrando a Exec.\n";
     char *buffer = parToCharPtr(machine->ReadRegister(4));
     Thread *t = new Thread("Child Thread");
+    currentThread->addSon(t);
     t->Fork(NachosExecThread, (void *) fileSystem->Open(buffer));
     //machine->WriteRegister(2, id);
     cout<<"Saliendo de Exec.\n";
@@ -333,12 +334,35 @@ void NachosExec() {
 
 void NachosExit(){
     int status = machine->ReadRegister(4);
-    ASSERT(status == 0);
-    currentThread->Finish();
+    currentThread->setExitStatus(status);
+    currentThread->releaseSons();
+    if(currentThread->space != nullptr){
+        delete currentThread->space;
+        currentThread->space = nullptr;
+    }
+
+    if(currentThread->getDad() != nullptr){
+        currentThread->setZombie(true);
+        currentThread->getDad()->Signal();
+    }else{
+        threadToBeDestroyed = currentThread;
+    }
+    currentThread->Sleep();
 }
 
 void NachosJoin(){
-    //int id = machine->ReadRegister(4);
+    int id = machine->ReadRegister(4);
+    Thread * child = currentThread->getSon(id);
+    if(child != nullptr){
+        while(!child->isZombie()){
+            currentThread->Wait();
+        }
+        int exitStatus = child->getExitStatus();
+        machine->WriteRegister(2, exitStatus);
+        currentThread->releaseSon(child);
+    }else{
+        machine->WriteRegister(2, -1);
+    }
 }
 
 void ExceptionHandler(ExceptionType which) {
@@ -377,7 +401,8 @@ void ExceptionHandler(ExceptionType which) {
             }
             case SC_Exit:{
                 NachosExit();
-                returnFromSystemCall();
+                //returnFromSystemCall();
+                //Despues de exit no se regresa del system call.
                 break;
             }
             case SC_Fork:{

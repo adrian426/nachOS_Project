@@ -309,3 +309,80 @@ Thread::RestoreUserState()
 	machine->WriteRegister(i, userRegisters[i]);
 }
 #endif
+
+ThreadStatus Thread::getStatus(){
+    return status;
+}
+
+void Thread::setDad(Thread * t){
+    dad = t;
+}
+
+Thread * Thread::getDad(){
+    return dad;
+}
+
+void Thread::addSon (Thread * t){
+    t->setDad(this);
+    sons.push_back(t);
+}
+
+void Thread::releaseSons(){
+    while(!sons.empty()){
+        Thread * victim = sons.front();
+        sons.pop_front();
+        delete victim;
+    }
+}
+
+void Thread::releaseSon(Thread *t){
+    bool found = false;
+    for(list<Thread*>::iterator it = sons.begin(); it != sons.end() && !found; ++it){
+        if(*it == t){
+            found = true;
+            sons.erase(it);
+        }
+    }
+
+    if(!found){
+        //Not a son of this thread, cant delete
+    }else{
+        delete t;
+    }
+}
+
+Thread * Thread::getSon(int id){
+    Thread * target = nullptr;
+    bool found = false;
+    for(list<Thread*>::iterator it = sons.begin(); it != sons.end() && !found; ++it){
+        if((*it)->id = id){
+            found = true;
+            target = *it;
+        }
+    }
+    return target;
+}
+
+bool Thread::isZombie(){
+    return zombie;
+}
+
+void Thread::setZombie(bool zombie){
+    this->zombie = zombie;
+}
+
+int Thread::getExitStatus(){
+    return exitStatus;
+}
+
+void Thread::setExitStatus(int status){
+    this->exitStatus = status;
+}
+
+void Thread::Wait(){
+    this->sem->P();
+}
+
+void Thread::Signal(){
+    this->sem->V();
+}
