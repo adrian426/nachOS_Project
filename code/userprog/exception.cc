@@ -387,8 +387,8 @@ void ExceptionHandler(ExceptionType which) {
                 break;
             }
             case SC_Exit:{
-                NachosExit();
-                //returnFromSystemCall();
+                //NachosExit();
+                returnFromSystemCall();
                 //Despues de exit no se regresa del system call.
                 break;
             }
