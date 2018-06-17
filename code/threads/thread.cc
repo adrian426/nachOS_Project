@@ -40,7 +40,10 @@ Thread::Thread(const char* threadName)
     status = JUST_CREATED;
 #ifdef USER_PROGRAM
     space = NULL;
-    id = availableThreadIds->Find(); //Encuentre un id disponible.
+    id = -1;
+    dad = nullptr;
+    exitStatus = 0;
+    zombie = false;
 #endif
 
 }
@@ -61,7 +64,9 @@ Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 #ifdef USER_PROGRAM
-    availableThreadIds->Clear(id); //Permita que el id se use de nuevo.
+    if(id != -1){
+        availableThreadIds->Clear(id); //Permita que el id se use de nuevo.
+    }
 #endif
     ASSERT(this != currentThread);
     if (stack != NULL)

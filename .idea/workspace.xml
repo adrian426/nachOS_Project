@@ -11,7 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="20754bf8-21b6-4bd6-a309-852ffe603da4" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/code/threads/thread.cc" afterPath="$PROJECT_DIR$/code/threads/thread.cc" />
-      <change beforePath="$PROJECT_DIR$/code/userprog/addrspace.cc" afterPath="$PROJECT_DIR$/code/userprog/addrspace.cc" />
+      <change beforePath="$PROJECT_DIR$/code/userprog/nachos" afterPath="$PROJECT_DIR$/code/userprog/nachos" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,11 +23,74 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="exception.cc" pinned="false" current-in-tab="true">
+      <file leaf-file-name="exception.cc" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/userprog/exception.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="1" column="72" lean-forward="false" selection-start-line="1" selection-start-column="72" selection-end-line="1" selection-end-column="72" />
+            <state relative-caret-position="136">
+              <caret line="337" column="0" lean-forward="false" selection-start-line="337" selection-start-column="0" selection-end-line="337" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cop.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/code/test/cop.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pingPong.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/code/test/pingPong.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="todos.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/code/test/todos.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-573">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="sort-ok.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/code/test/sort-ok.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-335">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="thread.cc" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/code/threads/thread.cc">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="515">
+              <caret line="68" column="5" lean-forward="false" selection-start-line="68" selection-start-column="5" selection-end-line="68" selection-end-column="5" />
+              <folding>
+                <element signature="e#1455#1540#0" expanded="true" />
+                <element signature="e#2144#2239#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="thread.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/code/threads/thread.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="589">
+              <caret line="139" column="48" lean-forward="false" selection-start-line="139" selection-start-column="48" selection-end-line="139" selection-end-column="48" />
               <folding />
             </state>
           </provider>
@@ -54,8 +117,8 @@
         <option value="$PROJECT_DIR$/code/threads/system.cc" />
         <option value="$PROJECT_DIR$/code/userprog/exception.cc" />
         <option value="$PROJECT_DIR$/code/threads/thread.h" />
-        <option value="$PROJECT_DIR$/code/threads/thread.cc" />
         <option value="$PROJECT_DIR$/code/userprog/addrspace.cc" />
+        <option value="$PROJECT_DIR$/code/threads/thread.cc" />
       </list>
     </option>
   </component>
@@ -110,6 +173,12 @@
               <item name="nachOS_Project" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="nachOS_Project" type="462c0819:PsiDirectoryNode" />
               <item name="code" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="nachOS_Project" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="nachOS_Project" type="462c0819:PsiDirectoryNode" />
+              <item name="code" type="462c0819:PsiDirectoryNode" />
               <item name="threads" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -153,12 +222,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1529195970146</updated>
-      <workItem from="1529195973931" duration="15217000" />
+      <workItem from="1529195973931" duration="16784000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15217000" />
+    <option name="totallyTimeSpent" value="16784000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="35" width="2560" height="1565" extended-state="6" />
@@ -269,19 +338,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/code/threads/thread.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="521">
-          <caret line="391" column="45" lean-forward="false" selection-start-line="391" selection-start-column="45" selection-end-line="391" selection-end-column="45" />
-          <folding>
-            <element signature="e#758#780#0" expanded="false" />
-            <element signature="e#1455#1535#0" expanded="false" />
-            <element signature="e#2139#2206#0" expanded="false" />
-            <element signature="e#10106#11256#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/code/userprog/addrspace.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-199">
@@ -296,17 +352,6 @@
           <caret line="22" column="13" lean-forward="false" selection-start-line="22" selection-start-column="13" selection-end-line="22" selection-end-column="13" />
           <folding>
             <element signature="e#703#725#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/code/threads/thread.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="589">
-          <caret line="139" column="48" lean-forward="false" selection-start-line="139" selection-start-column="48" selection-end-line="139" selection-end-column="48" />
-          <folding>
-            <element signature="e#1697#1740#0" expanded="false" />
-            <element signature="e#5251#5699#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -335,11 +380,62 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/code/test/cop.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/test/pingPong.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/test/todos.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-573">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/code/userprog/exception.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="1" column="72" lean-forward="false" selection-start-line="1" selection-start-column="72" selection-end-line="1" selection-end-column="72" />
+        <state relative-caret-position="136">
+          <caret line="337" column="0" lean-forward="false" selection-start-line="337" selection-start-column="0" selection-end-line="337" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/test/sort-ok.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-335">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/threads/thread.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="589">
+          <caret line="139" column="48" lean-forward="false" selection-start-line="139" selection-start-column="48" selection-end-line="139" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/threads/thread.cc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="515">
+          <caret line="68" column="5" lean-forward="false" selection-start-line="68" selection-start-column="5" selection-end-line="68" selection-end-column="5" />
+          <folding>
+            <element signature="e#1455#1540#0" expanded="true" />
+            <element signature="e#2144#2239#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
