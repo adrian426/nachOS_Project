@@ -88,7 +88,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // first, set up the translation
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
-        pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+        pageTable[i].virtualPage = i;
         pageTable[i].physicalPage = memoryPagesMap->Find();
         bzero(machine->mainMemory+pageTable[i].physicalPage*PageSize, PageSize); //Zero out that space in memory
         pageTable[i].valid = true;
@@ -114,7 +114,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // and the stack segment
     //bzero(machine->mainMemory, size);
 // then, copy in the code and data segments into memory
-    unsigned int numCodePages = divRoundUp(noffH.code.size, PageSize);
+    unsigned int numCodePages = divRoundUp(noffH.code.size, PageSize);//Calcula el número de páginas de código.
     if (noffH.code.size > 0){
 			//Buscar en la tabla el espacio fisico correspondiente al espacio virtual
 			for(int y = 0; y < numCodePages; y++){
@@ -124,7 +124,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 				PageSize, noffH.code.inFileAddr+y*PageSize);
 			}
     }
-    unsigned int numDataPages = divRoundUp(noffH.initData.size, PageSize);
+    unsigned int numDataPages = divRoundUp(noffH.initData.size, PageSize); //Calcula el número de paginas de datos.
     if (noffH.initData.size > 0) {
 			for(int y = 0; y < numDataPages; y++){
 	        DEBUG('a', "Initializing data segment, at 0x%x, size %d\n",
@@ -137,22 +137,22 @@ AddrSpace::AddrSpace(OpenFile *executable)
 		state = new int[NumTotalRegs + 4];
 }
 
-AddrSpace::AddrSpace(AddrSpace *space){
-    ASSERT(UserStackSize/PageSize <= memoryPagesMap->NumClear());
-    this->pageTable = new TranslationEntry[numPages];
-    this->numPages = space->numPages;
+AddrSpace::AddrSpace(AddrSpace *space){ //Constructor por copia
+    ASSERT(UserStackSize/PageSize <= memoryPagesMap->NumClear()); //Revisa que haya campo para otro stack
+    this->pageTable = new TranslationEntry[numPages]; //Nuevo pageTable
+    this->numPages = space->numPages; //Misma cantidad de páginas
 		state = new int[NumTotalRegs + 4];
 		unsigned int stackPages = divRoundUp(UserStackSize,PageSize);
 
-    for(unsigned int i = 0; i < numPages-stackPages; i++){
-        this->pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+    for(unsigned int i = 0; i < numPages-stackPages; i++){ //Copia todo menos el stack
+        this->pageTable[i].virtualPage = i;
         this->pageTable[i].physicalPage = space->pageTable[i].physicalPage;
         this->pageTable[i].valid = space->pageTable[i].valid;
         this->pageTable[i].use = space->pageTable[i].use;
         this->pageTable[i].dirty = space->pageTable[i].dirty;
         this->pageTable[i].readOnly = space->pageTable[i].readOnly;
     }
-    for(unsigned int i = (numPages-stackPages); i < numPages; i++){
+    for(unsigned int i = (numPages-stackPages); i < numPages; i++){ //Encuentra campo para el stack
         this->pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
         this->pageTable[i].physicalPage = memoryPagesMap->Find();
         //bzero(machine->mainMemory+pageTable[i].physicalPage*PageSize, PageSize);
@@ -171,7 +171,7 @@ AddrSpace::AddrSpace(AddrSpace *space){
 AddrSpace::~AddrSpace()
 {
     for(int i = 0; i < numPages; ++i){
-        memoryPagesMap->Clear(pageTable[i].physicalPage);
+        memoryPagesMap->Clear(pageTable[i].physicalPage); //Libera las páginas que tenía ocupadas.
     }
    delete pageTable;
 }

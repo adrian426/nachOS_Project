@@ -333,10 +333,10 @@ void Thread::addSon (Thread * t){
 }
 
 void Thread::releaseSons(){
-    while(!sons.empty()){
-        Thread * victim = sons.front();
-        sons.pop_front();
-        delete victim;
+    while(!sons.empty()){ //Mientras que la lista no esté vacía.
+        Thread * victim = sons.front(); //Se eliminará al primer hijo.
+        sons.pop_front(); //Elimina al hijo de la lista.
+        delete victim; //Elimina el thread.
     }
 }
 
@@ -345,7 +345,7 @@ void Thread::releaseSon(Thread *t){
     for(list<Thread*>::iterator it = sons.begin(); it != sons.end() && !found; ++it){
         if(*it == t){
             found = true;
-            sons.erase(it);
+            sons.erase(it); //Cuando lo encuentra en la lista, lo elimina.
         }
     }
 
@@ -362,10 +362,10 @@ Thread * Thread::getSon(int id){
     for(list<Thread*>::iterator it = sons.begin(); it != sons.end() && !found; ++it){
         if((*it)->id = id){
             found = true;
-            target = *it;
+            target = *it; //Cuando lo encuenta, lo asigna a target.
         }
     }
-    return target;
+    return target; //devuelve el puntero al thread.
 }
 
 bool Thread::isZombie(){
@@ -385,9 +385,9 @@ void Thread::setExitStatus(int status){
 }
 
 void Thread::Wait(){
-    this->sem->P();
+    this->sem->P(); //Wait con su semáforo.
 }
 
 void Thread::Signal(){
-    this->sem->V();
+    this->sem->V(); //Signal con su semáforo.
 }
