@@ -40,7 +40,9 @@ Thread::Thread(const char* threadName)
     status = JUST_CREATED;
 #ifdef USER_PROGRAM
     space = NULL;
+    id = availableThreadIds->Find(); //Encuentre un id disponible.
 #endif
+
 }
 
 //----------------------------------------------------------------------
@@ -58,6 +60,9 @@ Thread::Thread(const char* threadName)
 Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
+#ifdef USER_PROGRAM
+    availableThreadIds->Clear(id); //Permita que el id se use de nuevo.
+#endif
     ASSERT(this != currentThread);
     if (stack != NULL)
 	DeallocBoundedArray((char *) stack, StackSize * sizeof(HostMemoryAddress));

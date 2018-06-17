@@ -1,3 +1,8 @@
+/*
+ * Tarea realizada por Marco Venegas (B67697) y Adrián Alvarez (B40340).
+ */
+
+
 // exception.cc
 //	Entry point into the Nachos kernel from user programs.
 //	There are two kinds of things that can cause control to
@@ -32,7 +37,6 @@
 #include <iostream>
 using namespace std;
 void StartProcess(const char* p);
-Semaphore* ConsoleSem = new Semaphore("Console",1);
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -72,7 +76,9 @@ void returnFromSystemCall() {
 
 }       // returnFromSystemCall
 
-char * parToCharPtr(int position){
+//Desde una posición dada de memoria, hasta encontrar un '\0'
+//convierte lo que se encuentra en esos campos de memoria en una hilera.
+char * parToCharPtr(int position){ //Parameter to char ptr
     char * name = new char[128];
     int currentChar = 0;
     int i = 0;

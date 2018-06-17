@@ -33,11 +33,14 @@ extern Timer *timer;				// the hardware alarm clock
 #include "machine.h"
 extern Machine* machine;	// user program memory and registers
 #include "abrirTabla.h"
-extern NachosOpenFilesTable* openFilesTable;
+extern NachosOpenFilesTable* openFilesTable; //Tabla de archivos abiertos de NachOS.
 #include "bitmap.h"
-extern BitMap* memoryPagesMap;
+extern BitMap* memoryPagesMap; //Mapa de paginas libres en memoria.
+extern BitMap* availableThreadIds;
 #include "TablaSemaforos.h"
-extern TablaSemaforos * tablaSemaforos;
+extern TablaSemaforos * tablaSemaforos; //Tabla de semáforos de usuario de NachOS.
+#include "synch.h"
+extern Semaphore* ConsoleSem; //Semáforo global para utilizar la consola.
 
 #endif
 

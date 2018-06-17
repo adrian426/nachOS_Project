@@ -36,6 +36,8 @@ SynchDisk   *synchDisk;
 Machine *machine;	// user program memory and registers
 BitMap* memoryPagesMap;
 NachosOpenFilesTable* openFilesTable;
+Semaphore* ConsoleSem;
+Bitmap* availableThreadIds;
 
 TablaSemaforos * tablaSemaforos;
 #endif
@@ -183,8 +185,10 @@ Initialize(int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
     memoryPagesMap = new BitMap(NumPhysPages);
-	  tablaSemaforos = new TablaSemaforos();
+	tablaSemaforos = new TablaSemaforos();
     openFilesTable = new NachosOpenFilesTable();
+    ConsoleSem = new Semaphore("Console",1);
+    availableThreadIds = new BitMap(200); //Max de 200 diferentes threads.
 #endif
 
 #ifdef FILESYS
