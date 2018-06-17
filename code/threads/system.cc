@@ -37,7 +37,7 @@ Machine *machine;	// user program memory and registers
 BitMap* memoryPagesMap;
 NachosOpenFilesTable* openFilesTable;
 Semaphore* ConsoleSem;
-Bitmap* availableThreadIds;
+BitMap* availableThreadIds;
 
 TablaSemaforos * tablaSemaforos;
 #endif

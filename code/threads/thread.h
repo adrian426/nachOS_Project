@@ -103,21 +103,22 @@ class Thread {
     const char* getName() { return (name); }
     void Print() { printf("%s, ", name); }
 
-    int id;
+    int id; //Los threads en exec deben tener un id.
 
-    ThreadStatus getStatus();
-    void setDad(Thread * t);
-    Thread * getDad();
-    void addSon (Thread * t);
-    void releaseSons();
-    void releaseSon(Thread *t);
-    Thread * getSon(int id);
-    bool isZombie();
-    void setZombie(bool zombie);
-    int getExitStatus();
-    void setExitStatus(int status);
-    void Wait();
-    void Signal();
+    //Guiados por la guía en http://condor.depaul.edu/glancast/546class/docs/lec9.html
+    ThreadStatus getStatus(); //Devuelve el estado.
+    void setDad(Thread * t); //Setea el padre del thread.
+    Thread * getDad(); //Devuelve el padre de un thread.
+    void addSon (Thread * t); //Añade un hijo a la lista de hijos.
+    void releaseSons(); //Elimina a todos sus hijos.
+    void releaseSon(Thread *t); //Elimina a un hijo específico.
+    Thread * getSon(int id); //Devuelve a un hijo especificado por el id.
+    bool isZombie(); //Devuelve si es zombie o no.
+    void setZombie(bool zombie); //Modifica el valor de zombie.
+    int getExitStatus(); //Devuelve el valor del estado de salida.
+    void setExitStatus(int status); //Modifica el valor del estado de salida.
+    void Wait(); //Espera.
+    void Signal(); //Hace señal.
 
   private:
     // some of the private data for this class is listed above
@@ -132,11 +133,11 @@ class Thread {
     					// Allocate a stack for thread.
 					// Used internally by Fork()
 
-    list<Thread *> sons;
-    Thread * dad;
-    Semaphore * sem;
-    int exitStatus;
-    bool zombie;
+    list<Thread *> sons; //Lista de hijos.
+    Thread * dad; //Puntero al padre.
+    Semaphore * sem; //Semáforo
+    int exitStatus; //Estado de salida.
+    bool zombie; //Indicador de si es un zombie.
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers --

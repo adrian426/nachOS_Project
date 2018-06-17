@@ -95,39 +95,34 @@ void NachosOpen(){
   char* path;
   int rst;
   int r4 = machine->ReadRegister(4);
-  path = parToCharPtr(r4);
+  path = parToCharPtr(r4); //Lee el nombre del archivo que se quiere abrir
   int unixID = open(path, O_RDWR);
-  cout<<unixID<<"\n";
-  if(unixID != -1){
-    rst = openFilesTable->Open(unixID);
+  if(unixID != -1){ //Si se pudo abrir el archivo exitosamente.
+    rst = openFilesTable->Open(unixID); //Se ingresa dentro de la tabla de archivos abiertos de NachOS.
   } else {
-    close(unixID);
+    close(unixID); //Si no, entonces se cierra el archivo.
   }
-  machine->WriteRegister(2,rst);
+  machine->WriteRegister(2,rst); //Se devuelve el resultado.
 }
 
 void NachosClose(){
-    cout << "Entrando Close" << '\n';
     //OpenFileID id -> Register 4
-    int NachosHandle = machine->ReadRegister(4); //Reads the NachosHandle passed
-    int UnixHandle = openFilesTable->getUnixHandle(NachosHandle); //Gets the unix handle
+    int NachosHandle = machine->ReadRegister(4); //Lee el handle de NachOS pasado por parámetro.
+    int UnixHandle = openFilesTable->getUnixHandle(NachosHandle); //Consigue el handle de Unix.
     int result = -1;
-    if(-1 != UnixHandle){ //It is open.
+    if(-1 != UnixHandle){ //Si está abierto.
         result = close(UnixHandle);
         if(-1 != result){
             result = openFilesTable->Close(NachosHandle);
         }
     }
-    machine->WriteRegister(4, result);
-    cout << "Saliendo Close" << '\n';
+    machine->WriteRegister(2, result); //Se devuelve el resultado.
 }
 
 void NachosCreate(){
-    cout << "Entrando Create" << '\n';
-    char * path = parToCharPtr(machine->ReadRegister(4)); //Returns path as char *
-    int result = creat(path, S_IRWXU); //Create file and open it with read, write and execute rights.
-    machine->WriteRegister(4, result);
-    cout << "Saliendo create" << '\n';
+    char * path = parToCharPtr(machine->ReadRegister(4)); //Lee el nombre de archivo a ser creado.
+    int result = creat(path, S_IRWXU); //Crear el archivo con derecho de leer, escribir y ejecutar.
+    machine->WriteRegister(2, result); //Devuelva el resultado.
 }
 
 void NachosWrite() {                   // System call 7
@@ -139,7 +134,6 @@ void NachosWrite() {                   // System call 7
 		 OpenFileId id	// Register 6
 	);
 */
-    cout << "Entrando Write" << '\n';
     char * buffer = NULL;
     int size = machine->ReadRegister( 5 );	// Read size to write
 
@@ -147,7 +141,7 @@ void NachosWrite() {                   // System call 7
     buffer = parToCharPtr(machine->ReadRegister(4));
     OpenFileId id = machine->ReadRegister( 6 );	// Read file descriptor
     // Need a semaphore to synchronize access to console
-    ConsoleSem->P();
+    ConsoleSem->P(); //Semáforo global.
 
     switch (id) {
         case  ConsoleInput:	// User could not write to standard input
@@ -175,11 +169,8 @@ void NachosWrite() {                   // System call 7
             break;
 
     }
-    // Update simulation stats, see details in Statistics class in machine/stats.c
-    // NO SE COMO SE ACTUALIZAN LOS STATS
-    ConsoleSem->V();
 
-    cout << "Saliendo write" << '\n';
+    ConsoleSem->V();
 
 }       // NachosWrite
 
@@ -191,41 +182,30 @@ void NachosRead(){
 		OpenFileId id	// Register 6
 	);
 */
-    cout << "Entrando Read" << '\n';
     int position = machine->ReadRegister(4);
     int size = machine->ReadRegister( 5 );	// Read size to read
     char buffer[size]; //Buffer to store what is read
     OpenFileId id = machine->ReadRegister( 6 );	// Read file descriptor
-    cout << id << "id\n";
-    // Need a semaphore to synchronize access to console
-    //ConsoleSem->P();
-    //cout << "1" << '\n';
+
     bool standard = (id == ConsoleInput || id == ConsoleOutput || id == ConsoleOutput);
     int sizeRead = -1;
 
     //Reads and stores into buffer.
     if(standard){
-        cout << "holi2\n";
         sizeRead = static_cast<int>(read(openFilesTable->getUnixHandle(id), buffer, size));
     }else{
         if(openFilesTable->isOpened(id)) {
-            cout << "holi3\n";
             sizeRead = static_cast<int>(read(openFilesTable->getUnixHandle(id), buffer, size));
         }
     }
 
-    //if there was no error
+    //Si no hubo error.
     if(-1 != sizeRead){
         for(int i = 0; i < size; ++i){
             machine->WriteMem(position++, 1, (int)buffer[i]);
         }
     }
-    machine->WriteRegister(2, sizeRead); //Return the number of chars read, via r2
-    // Update simulation stats, see details in Statistics class in machine/stats.c
-    // NO SE COMO SE ACTUALIZAN LOS STATS
-    //ConsoleSem->V();
-    cout << sizeRead << '\n';
-    cout << "Saliendo read" << '\n';
+    machine->WriteRegister(2, sizeRead); //Devuelve el número de bytes leidos.
 }
 
 //void NachosForkThread( int p ) { // for 32 bits version
@@ -274,13 +254,13 @@ void NachosFork() {			// System call 9
 }	// Kernel_Fork
 
 void NachosYield(){
-    currentThread->Yield();
+    currentThread->Yield(); //Solo hace yield :D
 }
 
 void NachosSemCreate(){
     int initVal = machine->ReadRegister(4);
-    int id = tablaSemaforos->crearSem(initVal);
-    machine->WriteRegister(2, id);
+    int id = tablaSemaforos->crearSem(initVal); //Crea un semáforo en la tabla de semáforos.
+    machine->WriteRegister(2, id); //Devuelve el id.
 }
 
 void NachosSemDestroy(){
@@ -328,46 +308,47 @@ void NachosExecThread(void *file) {
 }
 
 void NachosExec() {
-    cout<<"Entrando a Exec.\n";
     char *buffer = parToCharPtr(machine->ReadRegister(4));
     Thread *t = new Thread("Child Thread");
+    t->id = availableThreadIds->Find(); //Le asigna un id al hilo.
+    int id = t->id;
     currentThread->addSon(t);
     t->Fork(NachosExecThread, (void *) fileSystem->Open(buffer));
-    //machine->WriteRegister(2, id);
-    cout<<"Saliendo de Exec.\n";
+    machine->WriteRegister(2, id); //Devuelvo el id del thread que hizo exec.
 }
 
 
 void NachosExit(){
-    int status = machine->ReadRegister(4);
-    currentThread->setExitStatus(status);
-    currentThread->releaseSons();
-    if(currentThread->space != nullptr){
-        delete currentThread->space;
+    int status = machine->ReadRegister(4); //Lee el estado con el que se hizo exit.
+    currentThread->setExitStatus(status); //Se setea el estado de salida del thread.
+    currentThread->releaseSons(); //Quita a todos los hijos de su lista de hijos y los elimina.
+    if(currentThread->space != nullptr){ //Si tiene espacio en memoria.
+        delete currentThread->space; //Borre dicho espacio.
         currentThread->space = nullptr;
     }
 
-    if(currentThread->getDad() != nullptr){
-        currentThread->setZombie(true);
-        currentThread->getDad()->Signal();
+    if(currentThread->getDad() != nullptr){ //Si tiene padre.
+        currentThread->setZombie(true); //Ahora es zombie
+        currentThread->getDad()->Signal(); //Le avisa al padre que ya terminó
     }else{
-        threadToBeDestroyed = currentThread;
+        threadToBeDestroyed = currentThread; //Si no tiene padre y hace exit, este es el hilo que debe ser destruido.
     }
-    currentThread->Sleep();
+    currentThread->Sleep(); //Zzz
 }
 
+//Para este syscall se modificó la clase Thread
 void NachosJoin(){
-    int id = machine->ReadRegister(4);
-    Thread * child = currentThread->getSon(id);
-    if(child != nullptr){
-        while(!child->isZombie()){
-            currentThread->Wait();
+    int id = machine->ReadRegister(4); //Lee el id al que se quiere hacer join
+    Thread * child = currentThread->getSon(id); //Consigue el hilo con dicho id.
+    if(child != nullptr){ //El hilo debe ser hijo del thread actual.
+        while(!child->isZombie()){ //Mientras que no sea zombie
+            currentThread->Wait(); //Espere
         }
-        int exitStatus = child->getExitStatus();
-        machine->WriteRegister(2, exitStatus);
-        currentThread->releaseSon(child);
+        int exitStatus = child->getExitStatus(); //Consigue el estado de salida del hijo que hizo exit.
+        machine->WriteRegister(2, exitStatus); //Se devuelve el estado.
+        currentThread->releaseSon(child); //Se elimina el hijo de la lista de hijos y se elimina.
     }else{
-        machine->WriteRegister(2, -1);
+        machine->WriteRegister(2, -1); //Si no existe el thread con ese id se devuelve un -1
     }
 }
 
@@ -442,9 +423,13 @@ void ExceptionHandler(ExceptionType which) {
                 break;
             }
             case SC_Exec:{
-              NachosExec();
-              returnFromSystemCall();
+                NachosExec();
+                returnFromSystemCall();
               break;
+            }
+            case SC_Join:{
+                NachosJoin();
+                returnFromSystemCall();
             }
         }
     } else {
