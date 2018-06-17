@@ -9,14 +9,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="20754bf8-21b6-4bd6-a309-852ffe603da4" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/code/threads/Makefile" afterPath="$PROJECT_DIR$/code/threads/Makefile" />
-      <change beforePath="$PROJECT_DIR$/code/threads/nachos" afterPath="$PROJECT_DIR$/code/threads/nachos" />
-      <change beforePath="$PROJECT_DIR$/code/threads/system.cc" afterPath="$PROJECT_DIR$/code/threads/system.cc" />
-      <change beforePath="$PROJECT_DIR$/code/threads/system.h" afterPath="$PROJECT_DIR$/code/threads/system.h" />
-      <change beforePath="$PROJECT_DIR$/code/threads/thread.cc" afterPath="$PROJECT_DIR$/code/threads/thread.cc" />
-      <change beforePath="$PROJECT_DIR$/code/userprog/exception.cc" afterPath="$PROJECT_DIR$/code/userprog/exception.cc" />
-    </list>
+    <list default="true" id="20754bf8-21b6-4bd6-a309-852ffe603da4" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -261,12 +254,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1529195970146</updated>
-      <workItem from="1529195973931" duration="12244000" />
+      <workItem from="1529195973931" duration="12441000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="12244000" />
+    <option name="totallyTimeSpent" value="12441000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="35" width="2560" height="1565" extended-state="6" />
