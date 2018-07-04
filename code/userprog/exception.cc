@@ -352,6 +352,22 @@ void NachosJoin(){
     }
 }
 
+void calcularSigLibreTLB(){
+    int sigLibre = (siguienteLibreTLB+1)%TLBSize;
+    siguienteLibreTLB = sigLibre;
+}
+
+void NachosPageFault(){
+    //printf("PageFault\n");
+    int neededPageAddr = machine->ReadRegister(39);
+    int vpn = (unsigned) neededPageAddr / PageSize;
+    if(!currentThread->space->getValid(vpn)) {
+        std::cout << "Page Fault en página " << vpn << '\n';
+    }
+    currentThread->space->leerPag(vpn); //Escribe la página necesaria en memoria.
+    calcularSigLibreTLB();
+}
+
 void ExceptionHandler(ExceptionType which) {
     int type = machine->ReadRegister(2);
     if ((which == SyscallException)) {
@@ -432,7 +448,9 @@ void ExceptionHandler(ExceptionType which) {
                 returnFromSystemCall();
             }
         }
-    } else {
+    } else if (which == PageFaultException) {
+        NachosPageFault();
+    }else{
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(false);
     }

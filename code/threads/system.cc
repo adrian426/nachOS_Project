@@ -38,8 +38,11 @@ BitMap* memoryPagesMap;
 NachosOpenFilesTable* openFilesTable;
 Semaphore* ConsoleSem;
 BitMap* availableThreadIds;
-
 TablaSemaforos * tablaSemaforos;
+#endif
+
+#ifdef VM
+int siguienteLibreTLB;
 #endif
 
 #ifdef NETWORK
@@ -189,6 +192,10 @@ Initialize(int argc, char **argv)
     openFilesTable = new NachosOpenFilesTable();
     ConsoleSem = new Semaphore("Console",1);
     availableThreadIds = new BitMap(200); //Max de 200 diferentes threads.
+#endif
+
+#ifdef VM
+    siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
 #endif
 
 #ifdef FILESYS

@@ -32,6 +32,10 @@ class AddrSpace {
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch
 
+    bool getValid(int virtualPage);
+
+    void leerPag(int paginaVirtual);
+
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
@@ -39,6 +43,8 @@ class AddrSpace {
 					// address space
     unsigned int availablePages = NumPhysPages;
     int* state;
+
+    OpenFile* executable;
 
     //struct
 };

@@ -41,7 +41,10 @@ extern BitMap* availableThreadIds;
 extern TablaSemaforos * tablaSemaforos; //Tabla de semáforos de usuario de NachOS.
 #include "synch.h"
 extern Semaphore* ConsoleSem; //Semáforo global para utilizar la consola.
+#endif
 
+#ifdef VM
+extern int siguienteLibreTLB; //Indice del siguiente campo libre en el TLB
 #endif
 
 #ifdef FILESYS_NEEDED 		// FILESYS or FILESYS_STUB
