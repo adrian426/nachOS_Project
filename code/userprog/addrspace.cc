@@ -253,6 +253,7 @@ bool AddrSpace::getValid(int virtualPage) {
 }
 
 void AddrSpace::leerPag(int paginaVirtual){
+    std::cout << "hola\n";
     NoffHeader noffH;
     executable->ReadAt((char *) &noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
