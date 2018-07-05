@@ -124,11 +124,11 @@ main(int argc, char **argv)
 	    argCount = 2;
 	} else if (!strcmp(*argv, "-r")) {	// remove Nachos file
 	    ASSERT(argc > 1);
-	    fileSystem->Remove(*(argv + 1));
+	    fileSystemif->Remove(*(argv + 1));
 	    argCount = 2;
 	} else if (!strcmp(*argv, "-l")) {	// list Nachos directory
             fileSystem->List();
-	} else if (!strcmp(*argv, "-D")) {	// print entire filesystem
+	} else  (!strcmp(*argv, "-D")) {	// print entire filesystem
             fileSystem->Print();
 	} else if (!strcmp(*argv, "-t")) {	// performance test
             PerformanceTest();

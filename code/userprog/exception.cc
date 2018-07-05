@@ -292,7 +292,6 @@ void NachosSemWait(){
 }
 
 void NachosExecThread(void *file) {
-
   //Esto lo saco de progtest.
     currentThread->space = new AddrSpace((OpenFile *) file);
 
@@ -358,11 +357,10 @@ void calcularSigLibreTLB(){
 }
 
 void NachosPageFault(){
-    //printf("PageFault\n");
     int neededPageAddr = machine->ReadRegister(39);
     int vpn = (unsigned) neededPageAddr / PageSize;
     if(!currentThread->space->getValid(vpn)) {
-        std::cout << "Page Fault en página " << vpn << '\n';
+        std::cout << "Page Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << '\n';
     }
     currentThread->space->leerPag(vpn); //Escribe la página necesaria en memoria.
     calcularSigLibreTLB();

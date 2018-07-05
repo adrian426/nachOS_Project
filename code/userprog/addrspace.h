@@ -36,6 +36,8 @@ class AddrSpace {
 
     void leerPag(int paginaVirtual);
 
+    void setFileName(const char * name);
+
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
@@ -44,7 +46,7 @@ class AddrSpace {
     unsigned int availablePages = NumPhysPages;
     int* state;
 
-    OpenFile* executable;
+    char * fileName;
 
     //struct
 };

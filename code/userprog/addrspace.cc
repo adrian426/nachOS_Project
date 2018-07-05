@@ -58,7 +58,8 @@ SwapHeader(NoffHeader *noffH) {
 //----------------------------------------------------------------------
 
 AddrSpace::AddrSpace(OpenFile *executable) {
-    this->executable = executable;
+    fileName = new char[100];
+
     NoffHeader noffH;
     unsigned int i, size;
 
@@ -253,14 +254,20 @@ bool AddrSpace::getValid(int virtualPage) {
 }
 
 void AddrSpace::leerPag(int paginaVirtual){
-    std::cout << "hola\n";
+    //std::cout << fileName+'\n';
+    OpenFile* executable = fileSystem->Open(fileName);
+
+    if (executable == NULL) {
+        printf("Unable to open file %s\n", fileName);
+        return;
+    }
+
     NoffHeader noffH;
     executable->ReadAt((char *) &noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
         (WordToHost(noffH.noffMagic) == NOFFMAGIC))
         SwapHeader(&noffH);
     ASSERT(noffH.noffMagic == NOFFMAGIC);
-
 
     int tamArchivo = noffH.code.size + noffH.initData.size; //Tamaño del archivo sin el header
     int cantPagsEnArchivo = divRoundUp(tamArchivo, PageSize); //Cantidad de páginas que están en archivo.
@@ -281,4 +288,8 @@ void AddrSpace::leerPag(int paginaVirtual){
     this->pageTable[paginaVirtual].valid = true;
     //Inserto en el siguiente campo libre del tlb esta página.
     machine->tlb[siguienteLibreTLB] = this->pageTable[paginaVirtual];
+}
+
+void AddrSpace::setFileName(const char *name) {
+    strcpy(fileName, name);
 }
