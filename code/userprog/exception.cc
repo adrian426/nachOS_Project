@@ -357,10 +357,11 @@ void calcularSigLibreTLB(){
 }
 
 void NachosPageFault(){
+    ++contadorPageFaults;
     int neededPageAddr = machine->ReadRegister(39);
     int vpn = (unsigned) neededPageAddr / PageSize;
     if(!currentThread->space->getValid(vpn)) {
-        std::cout << "Page Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << '\n';
+        std::cout << "Page Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << contadorPageFaults << "\n\n";
     }
     currentThread->space->leerPag(vpn); //Escribe la página necesaria en memoria.
     calcularSigLibreTLB();

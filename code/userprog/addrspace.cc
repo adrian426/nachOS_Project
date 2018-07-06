@@ -254,7 +254,6 @@ bool AddrSpace::getValid(int virtualPage) {
 }
 
 void AddrSpace::leerPag(int paginaVirtual){
-    //std::cout << fileName+'\n';
     OpenFile* executable = fileSystem->Open(fileName);
 
     if (executable == NULL) {

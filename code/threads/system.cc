@@ -42,7 +42,10 @@ TablaSemaforos * tablaSemaforos;
 #endif
 
 #ifdef VM
+int contadorPageFaults;
 int siguienteLibreTLB;
+BitMap* swapMap;
+OpenFile* swap;
 #endif
 
 #ifdef NETWORK
@@ -195,7 +198,16 @@ Initialize(int argc, char **argv)
 #endif
 
 #ifdef VM
+    contadorPageFaults = 0;
     siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
+    BitMap* swapMap = new BitMap(64);
+    bool created = fileSystem->Create("SWAP", 64*PageSize);
+    if(created){
+        OpenFile* swap = fileSystem->Open("SWAP");
+    }else{
+        printf("El SWAP no pudo ser creado.");
+        ASSERT(false);
+    }
 #endif
 
 #ifdef FILESYS
