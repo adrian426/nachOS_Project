@@ -253,6 +253,7 @@ bool AddrSpace::getValid(int virtualPage) {
     return this->pageTable[virtualPage].valid;
 }
 
+#ifdef VM
 void AddrSpace::leerPag(int paginaVirtual){
     OpenFile* executable = fileSystem->Open(fileName);
 
@@ -288,6 +289,7 @@ void AddrSpace::leerPag(int paginaVirtual){
     //Inserto en el siguiente campo libre del tlb esta página.
     machine->tlb[siguienteLibreTLB] = this->pageTable[paginaVirtual];
 }
+#endif
 
 void AddrSpace::setFileName(const char *name) {
     strcpy(fileName, name);

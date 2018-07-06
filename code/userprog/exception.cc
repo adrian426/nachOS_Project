@@ -226,7 +226,6 @@ void NachosForkThread( void * p ) { // for 64 bits version
 
     machine->Run();                     // jump to the user progam
     ASSERT(false);
-
 }
 
 void NachosFork() {			// System call 9
@@ -325,14 +324,13 @@ void NachosExit(){
         delete currentThread->space; //Borre dicho espacio.
         currentThread->space = nullptr;
     }
-
     if(currentThread->getDad() != nullptr){ //Si tiene padre.
         currentThread->setZombie(true); //Ahora es zombie
         currentThread->getDad()->Signal(); //Le avisa al padre que ya terminó
     }else{
         threadToBeDestroyed = currentThread; //Si no tiene padre y hace exit, este es el hilo que debe ser destruido.
     }
-    currentThread->Sleep(); //Zzz
+    currentThread->Finish(); //Zzz
 }
 
 //Para este syscall se modificó la clase Thread
@@ -351,6 +349,7 @@ void NachosJoin(){
     }
 }
 
+#ifdef VM
 void calcularSigLibreTLB(){
     int sigLibre = (siguienteLibreTLB+1)%TLBSize;
     siguienteLibreTLB = sigLibre;
@@ -366,6 +365,7 @@ void NachosPageFault(){
     currentThread->space->leerPag(vpn); //Escribe la página necesaria en memoria.
     calcularSigLibreTLB();
 }
+#endif
 
 void ExceptionHandler(ExceptionType which) {
     int type = machine->ReadRegister(2);
@@ -402,8 +402,8 @@ void ExceptionHandler(ExceptionType which) {
                 break;
             }
             case SC_Exit:{
-                //NachosExit();
-                returnFromSystemCall();
+                NachosExit();
+                //returnFromSystemCall();
                 //Despues de exit no se regresa del system call.
                 break;
             }
@@ -447,9 +447,13 @@ void ExceptionHandler(ExceptionType which) {
                 returnFromSystemCall();
             }
         }
-    } else if (which == PageFaultException) {
+    }
+#ifdef VM
+    else if (which == PageFaultException) {
         NachosPageFault();
-    }else{
+    }
+#endif
+    else{
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(false);
     }

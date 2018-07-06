@@ -3,12 +3,20 @@
 NachosOpenFilesTable::NachosOpenFilesTable(){
   openFiles = new int[MAPSIZE];
   openFilesMap = new BitMap(MAPSIZE);
+  openFiles[0] = 0; //std::in
+	openFiles[1] = 1; //std::out
+	openFiles[2] = 2; //std::cerr
+  openFilesMap->Mark(0);
+	openFilesMap->Mark(1);
+  openFilesMap->Mark(2);
   usage = 0;
 }       // Initialize
 
 NachosOpenFilesTable::~NachosOpenFilesTable(){
+  if(usage <= 0){
     delete[] openFiles;
     delete openFilesMap;
+  }
 }     // De-allocate
 
 int NachosOpenFilesTable::Open( int UnixHandle ){
