@@ -108,7 +108,7 @@ AddrSpace::AddrSpace(OpenFile *executable) {
         pageTable[i].use = false;
         pageTable[i].dirty = false;
         if(i < numCodePages ){
-            pageTable[i].readOnly = true;
+            pageTable[i].readOnly = false;//true;
         }else{
             pageTable[i].readOnly = false;
         }

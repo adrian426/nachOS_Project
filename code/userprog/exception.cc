@@ -453,6 +453,33 @@ void ExceptionHandler(ExceptionType which) {
         NachosPageFault();
     }
 #endif
+    else if (which == PageFaultException) {
+        NachosPageFault();
+    }
+    else if (which == ReadOnlyException) {
+        printf("ReadOnlyException\n");
+        ASSERT(false);
+    }
+    else if (which == BusErrorException) {
+        printf("BusErrorException\n");
+        ASSERT(false);
+    }
+    else if (which == AddressErrorException) {
+        printf("AddressErrorException\n");
+        ASSERT(false);
+    }
+    else if (which == OverflowException) {
+        printf("OverflowException\n");
+        ASSERT(false);
+    }
+    else if (which == IllegalInstrException) {
+        printf("IllegalInstrException\n");
+        ASSERT(false);
+    }
+    else if (which == NumExceptionTypes) {
+        printf("NumExceptionTypes\n");
+        ASSERT(false);
+    }
     else{
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(false);
