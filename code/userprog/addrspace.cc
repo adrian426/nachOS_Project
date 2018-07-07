@@ -226,6 +226,7 @@ void AddrSpace::SaveState() {
         this->pageTable[virtualPage].dirty = dirty;
 
         machine->tlb[i].valid = false;
+        memoryPagesMap->Clear(this->pageTable[virtualPage].physicalPage); //Libera el campo en memoria
     }
 #endif
 }
@@ -281,9 +282,13 @@ int AddrSpace::leerPag(int paginaVirtual){
             }
             this->pageTable[paginaVirtual].valid = true;
             //Inserto en el siguiente campo libre del tlb esta página.
+            machine->tlb[siguienteLibreTLB].use = false; //Al sacarse del TLB se toma como que no ha sido usada recientemente.
             machine->tlb[siguienteLibreTLB] = this->pageTable[paginaVirtual];
-        }else{
-            resultado = -1;
+        }else{ //Hay que hacer SWAP
+            //resultado = -1;
+            for(int i = 0; i < NumPhysPages; ++i){
+                //Ocupa tabla de paginas invertidas para esto jaja
+            }
         }
     }else{
         printf("Unable to open file %s\n", fileName);
