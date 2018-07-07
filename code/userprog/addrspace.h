@@ -34,7 +34,7 @@ class AddrSpace {
 
     bool getValid(int virtualPage);
 
-    void leerPag(int paginaVirtual);
+    int leerPag(int paginaVirtual);
 
     void setFileName(const char * name);
 

@@ -362,8 +362,13 @@ void NachosPageFault(){
     if(!currentThread->space->getValid(vpn)) {
         std::cout << "Page Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << contadorPageFaults << "\n\n";
     }
-    currentThread->space->leerPag(vpn); //Escribe la página necesaria en memoria.
-    calcularSigLibreTLB();
+    int resultado = currentThread->space->leerPag(vpn); //Escribe la página necesaria en memoria.
+    if(-1 != resultado){
+        calcularSigLibreTLB();
+    }else{
+        printf("Hubo un error\nCantidad de page faults: %d\nPagina: %d\n", contadorPageFaults, vpn);
+    }
+
 }
 #endif
 

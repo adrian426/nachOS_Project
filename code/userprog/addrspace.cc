@@ -107,9 +107,9 @@ AddrSpace::AddrSpace(OpenFile *executable) {
 #endif
         pageTable[i].use = false;
         pageTable[i].dirty = false;
-        if(i < numCodePages ){
+        if (i < numCodePages) {
             pageTable[i].readOnly = false;//true;
-        }else{
+        } else {
             pageTable[i].readOnly = false;
         }
     }
@@ -254,40 +254,43 @@ bool AddrSpace::getValid(int virtualPage) {
 }
 
 #ifdef VM
-void AddrSpace::leerPag(int paginaVirtual){
+int AddrSpace::leerPag(int paginaVirtual){
+    int resultado = 0;
     OpenFile* executable = fileSystem->Open(fileName);
 
-    if (executable == NULL) {
-        printf("Unable to open file %s\n", fileName);
-        return;
-    }
+    if(executable != NULL){
+        NoffHeader noffH;
+        executable->ReadAt((char *) &noffH, sizeof(noffH), 0);
+        if ((noffH.noffMagic != NOFFMAGIC) &&
+            (WordToHost(noffH.noffMagic) == NOFFMAGIC))
+            SwapHeader(&noffH);
+        ASSERT(noffH.noffMagic == NOFFMAGIC);
 
-    NoffHeader noffH;
-    executable->ReadAt((char *) &noffH, sizeof(noffH), 0);
-    if ((noffH.noffMagic != NOFFMAGIC) &&
-        (WordToHost(noffH.noffMagic) == NOFFMAGIC))
-        SwapHeader(&noffH);
-    ASSERT(noffH.noffMagic == NOFFMAGIC);
+        int tamArchivo = noffH.code.size + noffH.initData.size; //Tamaño del archivo sin el header
+        int cantPagsEnArchivo = divRoundUp(tamArchivo, PageSize); //Cantidad de páginas que están en archivo.
 
-    int tamArchivo = noffH.code.size + noffH.initData.size; //Tamaño del archivo sin el header
-    int cantPagsEnArchivo = divRoundUp(tamArchivo, PageSize); //Cantidad de páginas que están en archivo.
-
-    int freeFrame = memoryPagesMap->Find();
-    if(-1 != freeFrame){
-        this->pageTable[paginaVirtual].physicalPage = freeFrame; //Escribo en el pageTable la página física correspondiente
-        if(paginaVirtual < cantPagsEnArchivo){ //Si la página está en archivo
-            //Leo (escribo en memoria) la página virtual solicitada
-            executable->ReadAt(&machine->mainMemory[freeFrame*PageSize],
-                               PageSize, noffH.code.inFileAddr + paginaVirtual * PageSize);
-        }else{ //Es de uninit data o de la pila
-            bzero(machine->mainMemory+pageTable[paginaVirtual].physicalPage*PageSize, PageSize);
+        int freeFrame = memoryPagesMap->Find();
+        if(-1 != freeFrame){
+            this->pageTable[paginaVirtual].physicalPage = freeFrame; //Escribo en el pageTable la página física correspondiente
+            if(paginaVirtual < cantPagsEnArchivo){ //Si la página está en archivo
+                //Leo (escribo en memoria) la página virtual solicitada
+                executable->ReadAt(&machine->mainMemory[freeFrame*PageSize],
+                                   PageSize, noffH.code.inFileAddr + paginaVirtual * PageSize);
+            }else{ //Es de uninit data o de la pila
+                bzero(machine->mainMemory+pageTable[paginaVirtual].physicalPage*PageSize, PageSize);
+            }
+            this->pageTable[paginaVirtual].valid = true;
+            //Inserto en el siguiente campo libre del tlb esta página.
+            machine->tlb[siguienteLibreTLB] = this->pageTable[paginaVirtual];
+        }else{
+            resultado = -1;
         }
-
+    }else{
+        printf("Unable to open file %s\n", fileName);
+        resultado = -1;
     }
-
-    this->pageTable[paginaVirtual].valid = true;
-    //Inserto en el siguiente campo libre del tlb esta página.
-    machine->tlb[siguienteLibreTLB] = this->pageTable[paginaVirtual];
+    delete executable;
+    return resultado;
 }
 #endif
 
