@@ -255,79 +255,6 @@ bool AddrSpace::getValid(int virtualPage) {
 }
 
 #ifdef VM
-
-//void writeInSWAP(int physicalPage){
-//  int swapP = swapMap->Find();//swapP = pagina del swap.
-//  if(swapP == -1){
-//    DEBUG('a',"Swap lleno.");
-//    ASSERT(false);
-//  }
-//
-//  OpenFile* SWAPF = fileSystem->Open("SWAP");//SWAPF = arhivo de swap.
-//  IPT[physicalPage]->valid = false;
-//  IPT[physicalPage]->physicalPage = swapP;
-//  /*
-//  TranslationEntry* page;
-//  for(int i = 0; i < NumPhysPages;i++){
-//    if(tpi[i]->vpn == physicalPage){
-//      page = tpi[i]->pt;
-//      i = NumPhysPages;
-//    }
-//  }
-//  */
-//  swapThingy->WriteAt((&machine->mainMemory[physicalPage*PageSize]),PageSize, swapP*PageSize);
-//  //Agregu'e un indice global para tener el ultimo al que se escribio en el swap.
-//  //Falta poner a que se limpie lo que estaba ocupando en memoria.
-//  delete SWAPF;
-//}
-
-
-int AddrSpace::leerPag(int paginaVirtual){
-    int resultado = 0;
-    OpenFile* executable = fileSystem->Open(fileName);
-
-    if(executable != NULL){
-        NoffHeader noffH;
-        executable->ReadAt((char *) &noffH, sizeof(noffH), 0);
-        if ((noffH.noffMagic != NOFFMAGIC) &&
-            (WordToHost(noffH.noffMagic) == NOFFMAGIC))
-            SwapHeader(&noffH);
-        ASSERT(noffH.noffMagic == NOFFMAGIC);
-
-        int tamArchivo = noffH.code.size + noffH.initData.size; //Tamaño del archivo sin el header
-        int cantPagsEnArchivo = divRoundUp(tamArchivo, PageSize); //Cantidad de páginas que están en archivo.
-
-        int freeFrame = memoryPagesMap->Find();
-        if(-1 != freeFrame){
-            this->pageTable[paginaVirtual].physicalPage = freeFrame; //Escribo en el pageTable la página física correspondiente
-            tpi[freeFrame].pageTablePtr = this->pageTable; //Asigno lo que corresponde a la tabla de paginas invertidas.
-            tpi[freeFrame].paginaVirtual = paginaVirtual;
-
-            if(paginaVirtual < cantPagsEnArchivo){ //Si la página está en archivo
-                //Leo (escribo en memoria) la página virtual solicitada
-                executable->ReadAt(&machine->mainMemory[freeFrame*PageSize],
-                                   PageSize, noffH.code.inFileAddr + paginaVirtual * PageSize);
-            }else{ //Es de uninit data o de la pila
-                bzero(machine->mainMemory+pageTable[paginaVirtual].physicalPage*PageSize, PageSize);
-            }
-            this->pageTable[paginaVirtual].valid = true;
-            //Inserto en el siguiente campo libre del tlb esta página.
-            machine->tlb[siguienteLibreTLB].use = false; //Al sacarse del TLB se toma como que no ha sido usada recientemente.
-            machine->tlb[siguienteLibreTLB] = this->pageTable[paginaVirtual];
-        }else{ //Hay que hacer SWAP
-            //resultado = -1;
-            this->liberarFrame();
-           // this->traerPaginaAMemoria();
-        }
-    }else{
-        printf("Unable to open file %s\n", fileName);
-        resultado = -1;
-    }
-    delete executable;
-    return resultado;
-}
-#endif
-
 void AddrSpace::setFileName(const char *name) {
     strcpy(fileName, name);
 }
@@ -357,6 +284,8 @@ void AddrSpace::liberarFrame() { //Libero un frame utilizando el algoritmo de se
             memoryPagesMap->Clear(paginaFisica); //Libero la pagina de memoria.
         }else{
             //Swap lleno, no se que hacer
+            printf("SWAP FILE LLENO\n");
+            ASSERT(false);
         }
     }else{
         //No hay paginas en memoria con use en 0, no se que hacer (creo que esto no es factible)
@@ -367,28 +296,146 @@ void AddrSpace::traerPaginaAMemoria(int vpn) {
     bool valid = this->pageTable[vpn].valid;
     bool dirty = this->pageTable[vpn].dirty;
 
-    if(!valid && !dirty){ //I am confusion, creo que esto es para el enhanced second chance, y nosotros usamos el second chance normal.
+    if(!valid && !dirty){ //Debo traer del archivo, o asignar una pagina nueva si es datos no ini o stack.
+
+        this->traerPaginaDeArchivo(vpn);
 
     }else if(!valid && dirty){ //Está en el swap file
 
-    }else if(valid && !dirty){
+        this->traerPaginaDeSwap(vpn);
 
-    }else if(valid && dirty){
+    }else{ //(valid && !dirty) || (valid && dirty) En estos dos casos, la página está en memoria, solo actualizo tlb
+
+        this->actualizarTLB(vpn);
 
     }
 }
 
-void setSecondChance(int virtualPage) {//Creo que esto es una estupidez que salia con .use del tlb :(.
-    for (int i = 0; i < TLBSize; i++) {
-        if (machine->tlb[i].virtualPage == virtualPage) {
-            SCArray[i] = true;
+void AddrSpace::traerPaginaDeArchivo(int vpn) {
+
+    if(memoryPagesMap->NumClear() == 0){ //Hay que liberar espacio (mandar una victima al swap).
+        this->liberarFrame();
+    }
+
+    OpenFile* executable = fileSystem->Open(fileName);
+
+    if(executable != NULL) {
+        NoffHeader noffH;
+        executable->ReadAt((char *) &noffH, sizeof(noffH), 0);
+        if ((noffH.noffMagic != NOFFMAGIC) &&
+            (WordToHost(noffH.noffMagic) == NOFFMAGIC))
+            SwapHeader(&noffH);
+        ASSERT(noffH.noffMagic == NOFFMAGIC);
+
+        int tamArchivo = noffH.code.size + noffH.initData.size; //Tamaño del archivo sin el header
+        int cantPagsEnArchivo = divRoundUp(tamArchivo, PageSize); //Cantidad de páginas que están en archivo.
+
+        int freeFrame = memoryPagesMap->Find();
+
+        this->pageTable[vpn].physicalPage = freeFrame; //Escribo en el pageTable la página física correspondiente
+        tpi[freeFrame].pageTablePtr = this->pageTable; //Asigno lo que corresponde a la tabla de paginas invertidas.
+        tpi[freeFrame].paginaVirtual = vpn;
+
+        if(vpn < cantPagsEnArchivo){ //Si la página está en archivo
+            //Leo (escribo en memoria) la página virtual solicitada
+            executable->ReadAt(&machine->mainMemory[freeFrame*PageSize],
+                               PageSize, noffH.code.inFileAddr + vpn * PageSize);
+        }else{ //Es de uninit data o de la pila, asigno espacio vacío
+            bzero(machine->mainMemory+pageTable[vpn].physicalPage*PageSize, PageSize);
         }
+        this->pageTable[vpn].valid = true;
+        //Inserto en el siguiente campo libre del tlb esta página.
+
+        this->actualizarTLB(vpn);
+    }else{
+        printf("Unable to open file %s\n", fileName);
+        delete executable;
+        ASSERT(false);
     }
+
+    delete executable;
 }
 
-void resetSecondChancesAfterPageFault() {//este creo que si se puede usar.
-    for (int i = 0; i < TLBSize; i++) {
-        SCArray[i] = false;
-        //machine->tlb[i].use = false;???
+void AddrSpace::traerPaginaDeSwap(int vpn) {
+
+    if(memoryPagesMap->NumClear() == 0){ //Hay que liberar espacio (mandar una victima al swap).
+        this->liberarFrame();
     }
+
+    int pagEnSwap = this->pageTable[vpn].physicalPage;
+    int freeFrame = memoryPagesMap->Find();
+
+    swapFile->ReadAt(&machine->mainMemory[freeFrame * PageSize],PageSize, pagEnSwap * PageSize);
+
+    swapMap->Clear(pagEnSwap); //Libero el espacio en el swap
+
+    this->pageTable[vpn].valid = true; //Ahora esta página es válida
+    this->pageTable[vpn].physicalPage = freeFrame; //La página física corresponde al free frame recién encontrado
+
+    tpi[freeFrame].pageTablePtr = this->pageTable; //La tabla de paginas invertidas en este campo apunta a este page table
+    tpi[freeFrame].paginaVirtual = vpn; //Y a esta página lógica
+
+    this->actualizarTLB(vpn); //Actualizo el tlb con esta página que acaba de llegar.
 }
+
+
+void AddrSpace::calcularSigLibreTLB(){
+    //Por ahora lo calcula con fifo
+    int sigLibre = (siguienteLibreTLB+1)%TLBSize;
+    siguienteLibreTLB = sigLibre;
+}
+
+void AddrSpace::actualizarTLB(int vpn) {
+    //Actualizo la page table de la pagina saliente con los cambios que se hicieron en el TLB
+    this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].use = machine->tlb[siguienteLibreTLB].use;
+    this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].dirty = machine->tlb[siguienteLibreTLB].dirty;
+
+    //Actualizo la entrada del TLB con el entry actual
+    machine->tlb[siguienteLibreTLB] = this->pageTable[vpn];
+
+    this->calcularSigLibreTLB();
+}
+
+//Jeje comenté lo que era suyo <3
+
+//void writeInSWAP(int physicalPage){
+//  int swapP = swapMap->Find();//swapP = pagina del swap.
+//  if(swapP == -1){
+//    DEBUG('a',"Swap lleno.");
+//    ASSERT(false);
+//  }
+//
+//  OpenFile* SWAPF = fileSystem->Open("SWAP");//SWAPF = arhivo de swap.
+//  IPT[physicalPage]->valid = false;
+//  IPT[physicalPage]->physicalPage = swapP;
+//  /*
+//  TranslationEntry* page;
+//  for(int i = 0; i < NumPhysPages;i++){
+//    if(tpi[i]->vpn == physicalPage){
+//      page = tpi[i]->pt;
+//      i = NumPhysPages;
+//    }
+//  }
+//  */
+//  swapThingy->WriteAt((&machine->mainMemory[physicalPage*PageSize]),PageSize, swapP*PageSize);
+//  //Agregu'e un indice global para tener el ultimo al que se escribio en el swap.
+//  //Falta poner a que se limpie lo que estaba ocupando en memoria.
+//  delete SWAPF;
+//}
+//void setSecondChance(int virtualPage) {//Creo que esto es una estupidez que salia con .use del tlb :(.
+//    for (int i = 0; i < TLBSize; i++) {
+//        if (machine->tlb[i].virtualPage == virtualPage) {
+//            SCArray[i] = true;
+//        }
+//    }
+//}
+//
+//void resetSecondChancesAfterPageFault() {//este creo que si se puede usar.
+//    for (int i = 0; i < TLBSize; i++) {
+//        SCArray[i] = false;
+//        //machine->tlb[i].use = false;???
+//    }
+//}
+
+#endif
+

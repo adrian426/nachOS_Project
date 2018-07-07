@@ -16,47 +16,58 @@
 #include "copyright.h"
 #include "filesys.h"
 
-#define UserStackSize		1024 	// increase this as necessary!
+#define UserStackSize        1024    // increase this as necessary!
 
 class AddrSpace {
-  public:
-    AddrSpace(OpenFile *executable);	// Create an address space,
-					// initializing it with the program
-					// stored in the file "executable"
+public:
+    AddrSpace(OpenFile *executable);    // Create an address space,
+    // initializing it with the program
+    // stored in the file "executable"
     AddrSpace(AddrSpace *space);
-    ~AddrSpace();			// De-allocate an address space
 
-    void InitRegisters();		// Initialize user-level CPU registers,
-					// before jumping to user code
+    ~AddrSpace();            // De-allocate an address space
 
-    void SaveState();			// Save/restore address space-specific
-    void RestoreState();		// info on a context switch
+    void InitRegisters();        // Initialize user-level CPU registers,
+    // before jumping to user code
+
+    void SaveState();            // Save/restore address space-specific
+    void RestoreState();        // info on a context switch
 
     bool getValid(int virtualPage);
 
-    int leerPag(int paginaVirtual);
-
-    void setFileName(const char * name);
-
-    void liberarFrame();
-
-    void traerPaginaAMemoria(int vpn);
-
-    void setSecondChance(int vpn);
-    void resetSecondChancesAfterPageFault();
-    void writeInSWAP(int physicalPage);
-
-  private:
-    TranslationEntry *pageTable;	// Assume linear page table translation
-					// for now!
-    unsigned int numPages;		// Number of pages in the virtual
-					// address space
+private:
+    TranslationEntry *pageTable;    // Assume linear page table translation
+    // for now!
+    unsigned int numPages;        // Number of pages in the virtual
+    // address space
     unsigned int availablePages = NumPhysPages;
-    int* state;
+    int *state;
 
-    char * fileName;
+    char *fileName;
 
     //struct
+
+#ifdef VM
+public:
+    void setFileName(const char *name);
+    void traerPaginaAMemoria(int vpn);
+private:
+    void liberarFrame();
+
+    void traerPaginaDeArchivo(int vpn);
+
+    void traerPaginaDeSwap(int vpn);
+
+    void calcularSigLibreTLB();
+
+    void actualizarTLB(int vpn);
+
+    void setSecondChance(int vpn);
+
+    void resetSecondChancesAfterPageFault();
+
+    void writeInSWAP(int physicalPage);
+#endif
 };
 
 #endif // ADDRSPACE_H

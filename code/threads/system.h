@@ -49,13 +49,15 @@ struct TPI{
 	int paginaVirtual; //Pagina logica de el page table.
 };
 extern int contadorPageFaults; //Cuenta cuantos page faults ocurrieron.
-extern int swapIndex;
-extern bool SCArray[TLBSize];
 extern int siguienteLibreTLB; //Indice del siguiente campo libre en el TLB
 extern BitMap* swapMap; //Mapa de paginas libres en el swap.
 extern OpenFile* swapFile; //Archivo de swap.
-extern TranslationEntry* IPT[NumPhysPages];
 extern TPI* tpi;
+
+//extern int swapIndex;
+//extern bool SCArray[TLBSize];
+//extern TranslationEntry* IPT[NumPhysPages];
+
 #endif
 
 #ifdef FILESYS_NEEDED 		// FILESYS or FILESYS_STUB

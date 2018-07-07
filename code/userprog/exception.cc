@@ -350,10 +350,6 @@ void NachosJoin(){
 }
 
 #ifdef VM
-void calcularSigLibreTLB(){
-    int sigLibre = (siguienteLibreTLB+1)%TLBSize;
-    siguienteLibreTLB = sigLibre;
-}
 
 void NachosPageFault(){
     ++contadorPageFaults;
@@ -362,13 +358,7 @@ void NachosPageFault(){
     if(!currentThread->space->getValid(vpn)) {
         std::cout << "Page Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << contadorPageFaults << "\n\n";
     }
-    int resultado = currentThread->space->leerPag(vpn); //Escribe la página necesaria en memoria.
-    if(-1 != resultado){
-        calcularSigLibreTLB();
-    }else{
-        printf("Hubo un error\nCantidad de page faults: %d\nPagina: %d\n", contadorPageFaults, vpn);
-    }
-
+    currentThread->space->traerPaginaAMemoria(vpn); //Escribe la página necesaria en memoria, haciendo swap si es necesario.
 }
 #endif
 

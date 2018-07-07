@@ -44,15 +44,15 @@ TablaSemaforos * tablaSemaforos;
 #ifdef VM
 int contadorPageFaults;
 int siguienteLibreTLB;
-int swapIndex;
 BitMap* swapMap;
 OpenFile* swapFile;
-
-bool SCArray[TLBSize];//Para marcar las que se han usado mas repetido con 1.
-
-TranslationEntry* IPT[NumPhysPages];//El que yo digo.
-
 TPI* tpi;
+
+//int swapIndex;
+//bool SCArray[TLBSize];//Para marcar las que se han usado mas repetido con 1.
+//TranslationEntry* IPT[NumPhysPages];//El que yo digo.
+
+
 #endif
 
 #ifdef NETWORK
@@ -206,7 +206,6 @@ Initialize(int argc, char **argv)
 
 #ifdef VM
     contadorPageFaults = 0;
-    swapIndex = 0;
     siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
     BitMap* swapMap = new BitMap(64);
     bool created = fileSystem->Create("SWAP", 64*PageSize);
@@ -216,16 +215,16 @@ Initialize(int argc, char **argv)
         printf("El SWAP no pudo ser creado.");
         ASSERT(false);
     }
-
     tpi = new TPI[NumPhysPages];
 
-    /*for(int index = 0; index < TLBSize; index++)SCArray[index] = false;//Inializo el arreglo de second chance.
-    for(int index = 0; index < NumPhysPages; index++){//Inicializo la tabla de paginas invertida.
-      IPT[index]=0x0;
-      tpi[index]->pt = 0x0;
-      tpi[index]->vpn = -1;
-    }
-    */
+//    swapIndex = 0;
+//    for(int index = 0; index < TLBSize; index++)SCArray[index] = false;//Inializo el arreglo de second chance.
+//    for(int index = 0; index < NumPhysPages; index++){//Inicializo la tabla de paginas invertida.
+//      IPT[index]=0x0;
+//      tpi[index]->pt = 0x0;
+//      tpi[index]->vpn = -1;
+//    }
+
 #endif
 
 #ifdef FILESYS
