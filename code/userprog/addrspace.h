@@ -38,6 +38,10 @@ class AddrSpace {
 
     void setFileName(const char * name);
 
+    void liberarFrame();
+
+    void traerPaginaAMemoria(int vpn);
+
     void setSecondChance(int vpn);
     void resetSecondChancesAfterPageFault();
     void writeInSWAP(int physicalPage);

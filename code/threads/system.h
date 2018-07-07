@@ -44,13 +44,18 @@ extern Semaphore* ConsoleSem; //Semáforo global para utilizar la consola.
 #endif
 
 #ifdef VM
+struct TPI{
+	TranslationEntry * pageTablePtr; //Puntero hacia un page table.
+	int paginaVirtual; //Pagina logica de el page table.
+};
 extern int contadorPageFaults; //Cuenta cuantos page faults ocurrieron.
 extern int swapIndex;
 extern bool SCArray[TLBSize];
 extern int siguienteLibreTLB; //Indice del siguiente campo libre en el TLB
 extern BitMap* swapMap; //Mapa de paginas libres en el swap.
-extern OpenFile* swapThingy; //Archivo de swap.
+extern OpenFile* swapFile; //Archivo de swap.
 extern TranslationEntry* IPT[NumPhysPages];
+extern TPI* tpi;
 #endif
 
 #ifdef FILESYS_NEEDED 		// FILESYS or FILESYS_STUB
