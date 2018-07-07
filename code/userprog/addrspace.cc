@@ -302,3 +302,18 @@ int AddrSpace::leerPag(int paginaVirtual){
 void AddrSpace::setFileName(const char *name) {
     strcpy(fileName, name);
 }
+
+void setSecondChance(int virtualPage){//Creo que esto es una estupidez que salia con .use del tlb :(.
+  for(int i = 0; i < TLBSize; i++){
+    if(machine->tlb[i].virtualPage == virtualPage){
+      SCArray[i] = true;
+    }
+  }
+}
+
+void resetSecondChancesAfterPageFault(){//este creo que si se puede usar.
+  for(int i = 0; i < TLBSize; i++){
+      SCArray[i] = false;
+      //machine->tlb[i].use = false;???
+  }
+}

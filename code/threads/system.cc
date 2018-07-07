@@ -46,6 +46,15 @@ int contadorPageFaults;
 int siguienteLibreTLB;
 BitMap* swapMap;
 OpenFile* swap;
+
+bool SCArray[TLBSize];//Para marcar las que se han usado mas repetido con 1.
+
+TranslationEntry* IPT[NumPhysPages];//El que yo digo.
+
+struct TPI{//El que usted dice.
+  TranslationEntry* pt;
+  int vpn;
+} *tpi[NumPhysPages];
 #endif
 
 #ifdef NETWORK
@@ -191,7 +200,7 @@ Initialize(int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
     memoryPagesMap = new BitMap(NumPhysPages);
-	tablaSemaforos = new TablaSemaforos();
+	  tablaSemaforos = new TablaSemaforos();
     openFilesTable = new NachosOpenFilesTable();
     ConsoleSem = new Semaphore("Console",1);
     availableThreadIds = new BitMap(200); //Max de 200 diferentes threads.
@@ -207,6 +216,12 @@ Initialize(int argc, char **argv)
     }else{
         printf("El SWAP no pudo ser creado.");
         ASSERT(false);
+    }
+    for(int index = 0; index < TLBSize; index++)SCArray[index] = false;//Inializo el arreglo de second chance.
+    for(int index = 0; index < NumPhysPages; index++){//Inicializo la tabla de paginas invertida.
+      IPT[index]=0x0;
+      tpi[index]->pt = 0x0;
+      tpi[index]->vpn = -1;
     }
 #endif
 
