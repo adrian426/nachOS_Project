@@ -198,7 +198,7 @@ Initialize(int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
     memoryPagesMap = new BitMap(NumPhysPages);
-	  tablaSemaforos = new TablaSemaforos();
+	tablaSemaforos = new TablaSemaforos();
     openFilesTable = new NachosOpenFilesTable();
     ConsoleSem = new Semaphore("Console",1);
     availableThreadIds = new BitMap(200); //Max de 200 diferentes threads.
@@ -207,10 +207,10 @@ Initialize(int argc, char **argv)
 #ifdef VM
     contadorPageFaults = 0;
     siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
-    BitMap* swapMap = new BitMap(64);
+    swapMap = new BitMap(64);
     bool created = fileSystem->Create("SWAP", 64*PageSize);
     if(created){
-        OpenFile* swapFile = fileSystem->Open("SWAP");
+        swapFile = fileSystem->Open("SWAP");
     }else{
         printf("El SWAP no pudo ser creado.");
         ASSERT(false);

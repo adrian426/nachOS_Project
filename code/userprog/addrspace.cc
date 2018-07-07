@@ -171,7 +171,9 @@ AddrSpace::AddrSpace(AddrSpace *space) { //Constructor por copia
 
 AddrSpace::~AddrSpace() {
     for (int i = 0; i < numPages; ++i) {
-        memoryPagesMap->Clear(pageTable[i].physicalPage); //Libera las páginas que tenía ocupadas.
+        if(pageTable[i].valid){
+            memoryPagesMap->Clear(pageTable[i].physicalPage); //Libera las páginas que tenía ocupadas.
+        }
     }
     delete pageTable;
 }
