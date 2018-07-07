@@ -255,6 +255,31 @@ bool AddrSpace::getValid(int virtualPage) {
 }
 
 #ifdef VM
+void writeInSWAP(int physicalPage){
+  int swapP = swapMap->Find();//swapP = pagina del swap.
+  if(swapP == -1){
+    DEBUG('a',"Swap lleno.");
+    ASSERT(false);
+  }
+
+  OpenFile* SWAPF = fileSystem->Open("SWAP");//SWAPF = arhivo de swap.
+  IPT[physicalPage]->valid = false;
+  IPT[physicalPage]->physicalPage = swapP;
+  /*
+  TranslationEntry* page;
+  for(int i = 0; i < NumPhysPages;i++){
+    if(tpi[i]->vpn == physicalPage){
+      page = tpi[i]->pt;
+      i = NumPhysPages;
+    }
+  }
+  */
+  swapThingy->WriteAt((&machine->mainMemory[physicalPage*PageSize]),PageSize, swapP*PageSize);
+  //Agregu'e un indice global para tener el ultimo al que se escribio en el swap.
+  //Falta poner a que se limpie lo que estaba ocupando en memoria.
+  delete SWAPF;
+}
+
 int AddrSpace::leerPag(int paginaVirtual){
     int resultado = 0;
     OpenFile* executable = fileSystem->Open(fileName);

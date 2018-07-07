@@ -40,6 +40,7 @@ class AddrSpace {
 
     void setSecondChance(int vpn);
     void resetSecondChancesAfterPageFault();
+    void writeInSWAP(int physicalPage);
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation

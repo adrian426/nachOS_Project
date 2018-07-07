@@ -44,8 +44,9 @@ TablaSemaforos * tablaSemaforos;
 #ifdef VM
 int contadorPageFaults;
 int siguienteLibreTLB;
+int swapIndex;
 BitMap* swapMap;
-OpenFile* swap;
+OpenFile* swapThingy;
 
 bool SCArray[TLBSize];//Para marcar las que se han usado mas repetido con 1.
 
@@ -208,6 +209,7 @@ Initialize(int argc, char **argv)
 
 #ifdef VM
     contadorPageFaults = 0;
+    swapIndex = 0;
     siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
     BitMap* swapMap = new BitMap(64);
     bool created = fileSystem->Create("SWAP", 64*PageSize);
