@@ -10,12 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="20754bf8-21b6-4bd6-a309-852ffe603da4" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/code/machine/stats.cc" afterPath="$PROJECT_DIR$/code/machine/stats.cc" />
       <change beforePath="$PROJECT_DIR$/code/threads/system.cc" afterPath="$PROJECT_DIR$/code/threads/system.cc" />
+      <change beforePath="$PROJECT_DIR$/code/threads/system.h" afterPath="$PROJECT_DIR$/code/threads/system.h" />
       <change beforePath="$PROJECT_DIR$/code/userprog/addrspace.cc" afterPath="$PROJECT_DIR$/code/userprog/addrspace.cc" />
       <change beforePath="$PROJECT_DIR$/code/userprog/exception.cc" afterPath="$PROJECT_DIR$/code/userprog/exception.cc" />
-      <change beforePath="$PROJECT_DIR$/code/vm/SWAP" afterPath="$PROJECT_DIR$/code/vm/SWAP" />
       <change beforePath="$PROJECT_DIR$/code/vm/nachos" afterPath="$PROJECT_DIR$/code/vm/nachos" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -31,8 +29,8 @@
       <file leaf-file-name="exception.cc" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/code/userprog/exception.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="544">
-              <caret line="358" column="6" lean-forward="false" selection-start-line="358" selection-start-column="6" selection-end-line="358" selection-end-column="9" />
+            <state relative-caret-position="170">
+              <caret line="359" column="18" lean-forward="false" selection-start-line="359" selection-start-column="18" selection-end-line="359" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -51,8 +49,8 @@
       <file leaf-file-name="addrspace.cc" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/userprog/addrspace.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9962">
-              <caret line="293" column="34" lean-forward="false" selection-start-line="293" selection-start-column="34" selection-end-line="293" selection-end-column="34" />
+            <state relative-caret-position="436">
+              <caret line="450" column="12" lean-forward="true" selection-start-line="450" selection-start-column="12" selection-end-line="450" selection-end-column="12" />
               <folding>
                 <element signature="e#3984#4078#0" expanded="true" />
                 <element signature="e#8910#9332#0" expanded="true" />
@@ -65,12 +63,11 @@
       <file leaf-file-name="system.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/threads/system.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="21" column="19" lean-forward="false" selection-start-line="21" selection-start-column="12" selection-end-line="21" selection-end-column="19" />
+            <state relative-caret-position="646">
+              <caret line="52" column="29" lean-forward="false" selection-start-line="52" selection-start-column="29" selection-end-line="52" selection-end-column="29" />
               <folding>
                 <element signature="e#1038#1556#0" expanded="true" />
-                <element signature="e#1575#2014#0" expanded="true" />
-                <element signature="e#2075#2127#0" expanded="true" />
+                <element signature="e#2105#2157#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -119,13 +116,13 @@
       <file leaf-file-name="system.cc" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code/threads/system.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
-              <caret line="264" column="31" lean-forward="false" selection-start-line="264" selection-start-column="31" selection-end-line="264" selection-end-column="31" />
+            <state relative-caret-position="-4896">
+              <caret line="46" column="22" lean-forward="false" selection-start-line="46" selection-start-column="22" selection-end-line="46" selection-end-column="22" />
               <folding>
-                <element signature="e#6147#6964#0" expanded="true" />
-                <element signature="e#7630#7657#0" expanded="true" />
-                <element signature="e#7692#7710#0" expanded="true" />
-                <element signature="e#7738#7755#0" expanded="true" />
+                <element signature="e#6170#7014#0" expanded="true" />
+                <element signature="e#7680#7707#0" expanded="true" />
+                <element signature="e#7742#7760#0" expanded="true" />
+                <element signature="e#7788#7805#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -181,12 +178,12 @@
         <option value="$PROJECT_DIR$/code/filesys/openfile.cc" />
         <option value="$PROJECT_DIR$/code/userprog/progtest.cc" />
         <option value="$PROJECT_DIR$/code/userprog/addrspace.h" />
-        <option value="$PROJECT_DIR$/code/threads/system.h" />
         <option value="$PROJECT_DIR$/code/machine/translate.h" />
-        <option value="$PROJECT_DIR$/code/userprog/addrspace.cc" />
         <option value="$PROJECT_DIR$/code/machine/stats.cc" />
         <option value="$PROJECT_DIR$/code/machine/interrupt.cc" />
+        <option value="$PROJECT_DIR$/code/threads/system.h" />
         <option value="$PROJECT_DIR$/code/threads/system.cc" />
+        <option value="$PROJECT_DIR$/code/userprog/addrspace.cc" />
         <option value="$PROJECT_DIR$/code/userprog/exception.cc" />
       </list>
     </option>
@@ -313,15 +310,16 @@
       <workItem from="1530903515556" duration="3201000" />
       <workItem from="1530942045466" duration="1667000" />
       <workItem from="1530943802443" duration="12674000" />
-      <workItem from="1531023363014" duration="1144000" />
+      <workItem from="1531023363014" duration="3629000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="62758000" />
+    <option name="totallyTimeSpent" value="65243000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="35" width="2560" height="1565" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16796875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -330,7 +328,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3166542" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3166542" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -694,18 +692,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/code/threads/system.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="21" column="19" lean-forward="false" selection-start-line="21" selection-start-column="12" selection-end-line="21" selection-end-column="19" />
-          <folding>
-            <element signature="e#1038#1556#0" expanded="true" />
-            <element signature="e#1575#2014#0" expanded="true" />
-            <element signature="e#2075#2127#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/code/threads/preemptive.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -714,10 +700,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/code/threads/system.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="646">
+          <caret line="52" column="29" lean-forward="false" selection-start-line="52" selection-start-column="29" selection-end-line="52" selection-end-column="29" />
+          <folding>
+            <element signature="e#1038#1556#0" expanded="true" />
+            <element signature="e#2105#2157#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/code/threads/system.cc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4896">
+          <caret line="46" column="22" lean-forward="false" selection-start-line="46" selection-start-column="22" selection-end-line="46" selection-end-column="22" />
+          <folding>
+            <element signature="e#6170#7014#0" expanded="true" />
+            <element signature="e#7680#7707#0" expanded="true" />
+            <element signature="e#7742#7760#0" expanded="true" />
+            <element signature="e#7788#7805#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/code/userprog/addrspace.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9962">
-          <caret line="293" column="34" lean-forward="false" selection-start-line="293" selection-start-column="34" selection-end-line="293" selection-end-column="34" />
+        <state relative-caret-position="436">
+          <caret line="450" column="12" lean-forward="true" selection-start-line="450" selection-start-column="12" selection-end-line="450" selection-end-column="12" />
           <folding>
             <element signature="e#3984#4078#0" expanded="true" />
             <element signature="e#8910#9332#0" expanded="true" />
@@ -726,23 +736,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/code/threads/system.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="264" column="31" lean-forward="false" selection-start-line="264" selection-start-column="31" selection-end-line="264" selection-end-column="31" />
-          <folding>
-            <element signature="e#6147#6964#0" expanded="true" />
-            <element signature="e#7630#7657#0" expanded="true" />
-            <element signature="e#7692#7710#0" expanded="true" />
-            <element signature="e#7738#7755#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/code/userprog/exception.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="358" column="6" lean-forward="false" selection-start-line="358" selection-start-column="6" selection-end-line="358" selection-end-column="9" />
+        <state relative-caret-position="170">
+          <caret line="359" column="18" lean-forward="false" selection-start-line="359" selection-start-column="18" selection-end-line="359" selection-end-column="18" />
           <folding />
         </state>
       </provider>

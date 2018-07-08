@@ -442,21 +442,39 @@ void AddrSpace::calcularSigLibreTLB(){
     siguienteLibreTLB = sigLibre;*/
     //En second chance.
     //printf("%d",siguienteLibreTLB);
-    int victima = -1;
-    int i = (siguienteLibreTLB+1)%4;
-    for(int j = 0; j<TLBSize; j++){
-      if(!references[i%TLBSize]){
-        victima = i%TLBSize;
-      }
-      i++;
-    }
-
-    if(victima == -1){//Todos tenian el bit de referencia en false;
-      victima = siguienteLibreTLB;
-    }
-    clearReferences();
-    siguienteLibreTLB = victima;
+//    int victima = -1;
+//    int i = (siguienteLibreTLB+1)%4;
+//    for(int j = 0; j<TLBSize; j++){
+//      if(!references[i%TLBSize]){
+//        victima = i%TLBSize;
+//      }
+//      i++;
+//    }
+//
+//    if(victima == -1){//Todos tenian el bit de referencia en false;
+//      victima = siguienteLibreTLB;
+//    }
+//    clearReferences();
+//    siguienteLibreTLB = victima;
 //    //printf(" %d |",siguienteLibreTLB);
+    int victima = -1;
+    int i = 0;
+    bool encontrado = false;
+    while(!encontrado){
+//        if(machine->tlb[i].valid){
+            if(machine->tlb[i].use){
+                machine->tlb[i].use = false;
+            }else{
+                encontrado = true;
+                victima = i;
+            }
+            i++;
+            i %= TLBSize;
+//        }else{
+//            victima = i;
+//        }
+    }
+    siguienteLibreTLB = victima;
 }
 
 void AddrSpace::clearReferences(){
