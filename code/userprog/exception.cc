@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <iostream>
+#include <list>
 using namespace std;
 void StartProcess(const char* p);
 //----------------------------------------------------------------------
@@ -354,11 +355,29 @@ void NachosJoin(){
 #ifdef VM
 
 void NachosPageFault(){
-    stats->numPageFaults++;
-    int neededPageAddr = machine->ReadRegister(39);
-    int vpn = (unsigned) neededPageAddr / PageSize;
-//    std::cout << "\nPage Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << ++contadorPageFaults << "\n\n";
-    currentThread->space->traerPaginaAMemoria(vpn); //Escribe la página necesaria en memoria, haciendo swap si es necesario.
+//    stats->numPageFaults++;
+//    int neededPageAddr = machine->ReadRegister(39);
+//    int vpn = (unsigned) neededPageAddr / PageSize;
+////    std::cout << "\nPage Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << ++contadorPageFaults << "\n\n";
+//    currentThread->space->traerPaginaAMemoria(vpn); //Escribe la página necesaria en memoria, haciendo swap si es necesario.
+    std::list<int> lista;
+    lista.push_back(5);
+    lista.push_back(3);
+    lista.push_back(9);
+    lista.push_back(10);
+
+    for(std::list<int>::iterator it = lista.begin(); it != lista.end(); ++it){
+        std::cout << *it  << endl;
+    }
+
+    lista.pop_front();
+
+    for(std::list<int>::iterator it = lista.begin(); it != lista.end(); ++it){
+        std::cout << *it << endl;
+    }
+
+    std::cout << lista.size() << endl;
+    interrupt->Halt();
 }
 #endif
 

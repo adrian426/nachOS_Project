@@ -262,7 +262,21 @@ void AddrSpace::setFileName(const char *name) {
     strcpy(fileName, name);
 }
 
-void AddrSpace::liberarFrame() { //Libero un frame utilizando el algoritmo de second chance.
+////Sabemos que la memoria está llena.
+//void AddrSpace::liberarFrame(int vpn){
+//    TranslationEntry* victima = nullptr;
+//    bool encontrada = false;
+//    //Encontramos la victima
+//    for(list<TranslationEntry*>::iterator it = listaMemoria->begin(); it != listaMemoria->end() && !encontrada; ++it){
+//        if(*it->use){ //Si tiene el bit de uso en 1, no ha sido referenciada
+//
+//        }else{
+//            *it->use = true; //Se gasta su bit de referencia
+//        }
+//    }
+//}
+
+void AddrSpace::liberarFrame(int vpn) { //Libero un frame utilizando el algoritmo de second chance.
     TranslationEntry* entryActual = nullptr;
     int paginaFisica = -1;
     bool encontrada = false;
@@ -322,6 +336,7 @@ void AddrSpace::liberarFrame() { //Libero un frame utilizando el algoritmo de se
 }
 
 void AddrSpace::traerPaginaAMemoria(int vpn) {
+    TranslationEntry* nuevoEntry = &(this->pageTable[vpn]);
     bool valid = this->pageTable[vpn].valid;
     bool dirty = this->pageTable[vpn].dirty;
 
@@ -334,16 +349,22 @@ void AddrSpace::traerPaginaAMemoria(int vpn) {
         this->traerPaginaDeSwap(vpn);
 
     }else{ //(valid && !dirty) || (valid && dirty) En estos dos casos, la página está en memoria, solo actualizo tlb
-
+        if(nuevoEntry->use){ //Como se que ya está en memoria, solo cambio su bit de uso a false.
+            nuevoEntry->use = false;
+        }
         this->actualizarTLB(vpn);
-
+        //y actualizar bit de uso
     }
 }
+
+
 
 void AddrSpace::traerPaginaDeArchivo(int vpn) {
 
     if(memoryPagesMap->NumClear() == 0){ //Hay que liberar espacio (mandar una victima al swap).
-        this->liberarFrame();
+        this->liberarFrame(vpn);
+    }else{
+        listaMemoria->push_back(&this->pageTable[vpn]);
     }
 
     OpenFile* executable = fileSystem->Open(fileName);
@@ -388,7 +409,9 @@ void AddrSpace::traerPaginaDeArchivo(int vpn) {
 void AddrSpace::traerPaginaDeSwap(int vpn) {
 
     if(memoryPagesMap->NumClear() == 0){ //Hay que liberar espacio (mandar una victima al swap).
-        this->liberarFrame();
+        this->liberarFrame(vpn);
+    }else{
+        listaMemoria->push_back(&this->pageTable[vpn]);
     }
 
     int pagEnSwap = this->pageTable[vpn].physicalPage;

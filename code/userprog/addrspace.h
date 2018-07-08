@@ -52,7 +52,7 @@ public:
     void setFileName(const char *name);
     void traerPaginaAMemoria(int vpn);
 private:
-    void liberarFrame();
+    void liberarFrame(int vpn);
 
     void traerPaginaDeArchivo(int vpn);
 
@@ -63,7 +63,9 @@ private:
     void actualizarTLB(int vpn);
 
     void clearReferences();
+
     void estadoTLB();
+
 #endif
 };
 

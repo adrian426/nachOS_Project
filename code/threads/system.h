@@ -57,6 +57,9 @@ extern BitMap* tlbMap; //Mapa de el tlb.
 //extern OpenFile* swapFile; //Archivo de swap.
 extern TPI* tpi;
 //extern bool references[TLBSize];
+#include <list>
+extern list<TranslationEntry*>* listaMemoria;
+extern list<TranslationEntry*>* listaTLB;
 
 #endif
 

@@ -48,6 +48,8 @@ int victimaSwap;
 int victimaTLB;
 BitMap* swapMap;
 BitMap* tlbMap;
+list<TranslationEntry*>* listaMemoria;
+list<TranslationEntry*>* listaTLB;
 //OpenFile* swapFile;
 TPI* tpi;
 //bool references[TLBSize];
@@ -224,6 +226,10 @@ Initialize(int argc, char **argv)
     }
     tpi = new TPI[NumPhysPages];
     for(int index = 0; index < TLBSize; index++)machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
+
+    listaMemoria = new list<TranslationEntry*>();
+    listaTLB = new list<TranslationEntry*>();
+
 //    swapIndex = 0;
 //    for(int index = 0; index < TLBSize; index++)SCArray[index] = false;//Inializo el arreglo de second chance.
 //    for(int index = 0; index < NumPhysPages; index++){//Inicializo la tabla de paginas invertida.
