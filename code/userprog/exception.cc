@@ -61,6 +61,7 @@ void StartProcess(const char* p);
 //----------------------------------------------------------------------
 void NachosHalt(){
     DEBUG('a', "Shutdown, initiated by user program.\n");
+    //stats->numPageFaults = contadorPageFaults;
     interrupt->Halt();
 }
 
@@ -352,12 +353,10 @@ void NachosJoin(){
 #ifdef VM
 
 void NachosPageFault(){
-    //++contadorPageFaults;
+    stats->numPageFaults++;
     int neededPageAddr = machine->ReadRegister(39);
     int vpn = (unsigned) neededPageAddr / PageSize;
-    if(!currentThread->space->getValid(vpn)) {
-        std::cout << "\nPage Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << ++contadorPageFaults << "\n\n";
-    }
+    //std::cout << "\nPage Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << ++contadorPageFaults << "\n\n";
     currentThread->space->traerPaginaAMemoria(vpn); //Escribe la página necesaria en memoria, haciendo swap si es necesario.
 }
 #endif

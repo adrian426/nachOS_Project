@@ -261,6 +261,10 @@ Cleanup()
     delete machine;
 #endif
 
+#ifdef VM
+    fileSystem->Remove("SWAP");
+#endif
+
 #ifdef FILESYS_NEEDED
     delete fileSystem;
 #endif

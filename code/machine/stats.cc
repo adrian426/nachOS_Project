@@ -10,6 +10,7 @@
 #include "copyright.h"
 #include "utility.h"
 #include "stats.h"
+#include "system.h"
 
 //----------------------------------------------------------------------
 // Statistics::Statistics
@@ -33,7 +34,7 @@ Statistics::Statistics()
 void
 Statistics::Print()
 {
-    printf("Ticks: total %d, idle %d, system %d, user %d\n", totalTicks, 
+    printf("Ticks: total %d, idle %d, system %d, user %d\n", totalTicks,
 	idleTicks, systemTicks, userTicks);
     printf("Disk I/O: reads %d, writes %d\n", numDiskReads, numDiskWrites);
     printf("Console I/O: reads %d, writes %d\n", numConsoleCharsRead, 

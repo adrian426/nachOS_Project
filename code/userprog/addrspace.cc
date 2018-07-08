@@ -326,6 +326,7 @@ void AddrSpace::liberarFrame() { //Libero un frame utilizando el algoritmo de se
         }
     }else{
         //No hay paginas en memoria con use en 0, no se que hacer (creo que esto no es factible)
+        printf("hola\n");
     }
 }
 
