@@ -401,12 +401,12 @@ void AddrSpace::calcularSigLibreTLB(){
     /*int sigLibre = (siguienteLibreTLB+1)%TLBSize;
     siguienteLibreTLB = sigLibre;*/
     //En second chance.
+    printf("%d",siguienteLibreTLB);
     int victima = -1;
-    int i = siguienteLibreTLB;
+    int i = (siguienteLibreTLB+1)%4;
     for(int j = 0; j<TLBSize; j++){
       if(!references[i%TLBSize]){
         victima = i%TLBSize;
-        i = TLBSize;
       }
       i++;
     }
@@ -416,6 +416,7 @@ void AddrSpace::calcularSigLibreTLB(){
     }
     clearReferences();
     siguienteLibreTLB = victima;
+    printf(" %d |",siguienteLibreTLB);
 }
 
 void AddrSpace::clearReferences(){
