@@ -48,7 +48,7 @@ int ultimaVictimaSwap;
 BitMap* swapMap;
 //OpenFile* swapFile;
 TPI* tpi;
-bool references[TLBSize];
+//bool references[TLBSize];
 //int swapIndex;
 //bool SCArray[TLBSize];//Para marcar las que se han usado mas repetido con 1.
 //TranslationEntry* IPT[NumPhysPages];//El que yo digo.
@@ -218,7 +218,7 @@ Initialize(int argc, char **argv)
         ASSERT(false);
     }
     tpi = new TPI[NumPhysPages];
-    for(int index = 0; index < TLBSize; index++)references[index] = false;//Inializo el arreglo de referencias para second chance.
+    for(int index = 0; index < TLBSize; index++)machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
 //    swapIndex = 0;
 //    for(int index = 0; index < TLBSize; index++)SCArray[index] = false;//Inializo el arreglo de second chance.
 //    for(int index = 0; index < NumPhysPages; index++){//Inicializo la tabla de paginas invertida.

@@ -20,6 +20,7 @@
 #include "system.h"
 #include "addrspace.h"
 #include "noff.h"
+int sgt = 1;
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -432,11 +433,12 @@ void AddrSpace::traerPaginaDeSwap(int vpn) {
     tpi[freeFrame].pageTablePtr = this->pageTable; //La tabla de paginas invertidas en este campo apunta a este page table
     tpi[freeFrame].paginaVirtual = vpn; //Y a esta página lógica
 
+
+
     this->actualizarTLB(vpn); //Actualizo el tlb con esta página que acaba de llegar.
 }
 
-
-void AddrSpace::calcularSigLibreTLB(){
+void AddrSpace::calcularSigLibreTLB(int vpn){
     //Por ahora lo calcula con fifo
     /*int sigLibre = (siguienteLibreTLB+1)%TLBSize;
     siguienteLibreTLB = sigLibre;*/
@@ -457,16 +459,20 @@ void AddrSpace::calcularSigLibreTLB(){
 //    clearReferences();
 //    siguienteLibreTLB = victima;
 //    //printf(" %d |",siguienteLibreTLB);
+
+/*Agregue el arreglo de referencias al machine.h y .cc*/
     int victima = -1;
-    int i = 0;
+    int i = sgt;
     bool encontrado = false;
+    int recorrido = 0;
     while(!encontrado){
 //        if(machine->tlb[i].valid){
-            if(machine->tlb[i].use){
-                machine->tlb[i].use = false;
-            }else{
+            if(machine->references[i]){
+              machine->references[i] = false;
+            } else {
                 encontrado = true;
                 victima = i;
+                //cout<<"\nfound in: "<<victima<<"\n";
             }
             i++;
             i %= TLBSize;
@@ -475,11 +481,21 @@ void AddrSpace::calcularSigLibreTLB(){
 //        }
     }
     siguienteLibreTLB = victima;
+    sgt = (siguienteLibreTLB+1)%TLBSize;
+    clearReferences();
+}
+
+void AddrSpace::estadoTLB(){
+  cout<<0<<" Usos: "<<machine->references[0]<<" Tiene:"<<machine->tlb[0].virtualPage<<"\n";
+  cout<<1<<" Usos: "<<machine->references[1]<<" Tiene:"<<machine->tlb[1].virtualPage<<"\n";
+  cout<<2<<" Usos: "<<machine->references[2]<<" Tiene:"<<machine->tlb[2].virtualPage<<"\n";
+  cout<<3<<" Usos: "<<machine->references[3]<<" Tiene:"<<machine->tlb[3].virtualPage<<"\n";
+  cout<<"Current index: "<<siguienteLibreTLB<<", Next Index: "<<sgt<<"\n";
 }
 
 void AddrSpace::clearReferences(){
   for(int i = 0; i<TLBSize; i++){
-    references[i] = false;
+    machine->references[i] = false;
   }
 }
 
@@ -487,13 +503,13 @@ void AddrSpace::actualizarTLB(int vpn) {
     //Actualizo la page table de la pagina saliente con los cambios que se hicieron en el TLB
     this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].use = machine->tlb[siguienteLibreTLB].use;
     this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].dirty = machine->tlb[siguienteLibreTLB].dirty;
-
-    references[siguienteLibreTLB] = true; //Esto es del second chance
+    //this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].virtualPage = machine->tlb[siguienteLibreTLB].virtualPage;
+    //references[siguienteLibreTLB] = true; //Esto es del second chance
 
     //Actualizo la entrada del TLB con el entry actual
     machine->tlb[siguienteLibreTLB] = this->pageTable[vpn];
-
-    this->calcularSigLibreTLB();
+    this->calcularSigLibreTLB(vpn);
+    //this->estadoTLB();
 }
 
 //Jeje comenté lo que era suyo <3

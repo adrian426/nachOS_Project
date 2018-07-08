@@ -58,11 +58,12 @@ private:
 
     void traerPaginaDeSwap(int vpn);
 
-    void calcularSigLibreTLB();
+    void calcularSigLibreTLB(int vpn);
 
     void actualizarTLB(int vpn);
 
     void clearReferences();
+    void estadoTLB();
 #endif
 };
 

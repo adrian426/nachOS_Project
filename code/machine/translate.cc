@@ -1,4 +1,4 @@
-// translate.cc 
+// translate.cc
 //	Routines to translate virtual addresses to physical addresses.
 //	Software sets up a table of legal translations.  We look up
 //	in the table on every memory reference to find the true physical
@@ -12,7 +12,7 @@
 //	Translation lookaside buffer -- associative lookup in the table
 //	to find an entry with the same virtual page #.  If found,
 //	this entry is used for the translation.
-//	If not, it traps to software with an exception. 
+//	If not, it traps to software with an exception.
 //
 //	In practice, the TLB is much smaller than the amount of physical
 //	memory (16 entries is common on a machine that has 1000's of
@@ -26,7 +26,7 @@
 // DO NOT CHANGE -- part of the machine emulation
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -73,7 +73,7 @@ ShortToMachine(unsigned short shortword) { return ShortToHost(shortword); }
 
 //----------------------------------------------------------------------
 // Machine::ReadMem
-//      Read "size" (1, 2, or 4) bytes of virtual memory at "addr" into 
+//      Read "size" (1, 2, or 4) bytes of virtual memory at "addr" into
 //	the location pointed to by "value".
 //
 //   	Returns false if the translation step from virtual to physical memory
@@ -170,10 +170,10 @@ Machine::WriteMem(int addr, int size, int value) {
 
 //----------------------------------------------------------------------
 // Machine::Translate
-// 	Translate a virtual address into a physical address, using 
-//	either a page table or a TLB.  Check for alignment and all sorts 
-//	of other errors, and if everything is ok, set the use/dirty bits in 
-//	the translation table entry, and store the translated physical 
+// 	Translate a virtual address into a physical address, using
+//	either a page table or a TLB.  Check for alignment and all sorts
+//	of other errors, and if everything is ok, set the use/dirty bits in
+//	the translation table entry, and store the translated physical
 //	address in "physAddr".  If there was an error, returns the type
 //	of the exception.
 //
@@ -222,6 +222,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
         for (entry = NULL, i = 0; i < TLBSize; i++)
             if (tlb[i].valid && (tlb[i].virtualPage == (int) vpn)) {
                 entry = &tlb[i];            // FOUND!
+                references[i] = true;
                 break;
             }
         if (entry == NULL) {                // not found
@@ -238,8 +239,8 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
     }
     pageFrame = entry->physicalPage;
 
-    // if the pageFrame is too big, there is something really wrong! 
-    // An invalid translation was loaded into the page table or TLB. 
+    // if the pageFrame is too big, there is something really wrong!
+    // An invalid translation was loaded into the page table or TLB.
     if (pageFrame >= NumPhysPages) {
         DEBUG('a', "*** frame %d > %d!\n", pageFrame, NumPhysPages);
         return BusErrorException;

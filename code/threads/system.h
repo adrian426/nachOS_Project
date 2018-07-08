@@ -54,7 +54,7 @@ extern int ultimaVictimaSwap;
 extern BitMap* swapMap; //Mapa de paginas libres en el swap.
 //extern OpenFile* swapFile; //Archivo de swap.
 extern TPI* tpi;
-extern bool references[TLBSize];
+//extern bool references[TLBSize];
 
 #endif
 

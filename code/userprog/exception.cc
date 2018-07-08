@@ -319,6 +319,7 @@ void NachosExec() {
 
 void NachosExit(){
     int status = machine->ReadRegister(4); //Lee el estado con el que se hizo exit.
+    printf("Exit with value: %d\n",status);
     currentThread->setExitStatus(status); //Se setea el estado de salida del thread.
     currentThread->releaseSons(); //Quita a todos los hijos de su lista de hijos y los elimina.
     if(currentThread->space != nullptr){ //Si tiene espacio en memoria.
@@ -356,7 +357,7 @@ void NachosPageFault(){
     stats->numPageFaults++;
     int neededPageAddr = machine->ReadRegister(39);
     int vpn = (unsigned) neededPageAddr / PageSize;
-//    std::cout << "\nPage Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << ++contadorPageFaults << "\n\n";
+    std::cout << "\nPage Fault:\nAddress:  "<< neededPageAddr << ", Page: " << vpn << "\nCantidad de page faults: " << ++contadorPageFaults << "\n\n";
     currentThread->space->traerPaginaAMemoria(vpn); //Escribe la página necesaria en memoria, haciendo swap si es necesario.
 }
 #endif
