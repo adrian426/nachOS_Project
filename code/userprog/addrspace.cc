@@ -398,14 +398,38 @@ void AddrSpace::traerPaginaDeSwap(int vpn) {
 
 void AddrSpace::calcularSigLibreTLB(){
     //Por ahora lo calcula con fifo
-    int sigLibre = (siguienteLibreTLB+1)%TLBSize;
-    siguienteLibreTLB = sigLibre;
+    /*int sigLibre = (siguienteLibreTLB+1)%TLBSize;
+    siguienteLibreTLB = sigLibre;*/
+    //En second chance.
+    int victima = -1;
+    int i = siguienteLibreTLB;
+    for(int j = 0; j<TLBSize; j++){
+      if(!references[i%TLBSize]){
+        victima = i%TLBSize;
+        i = TLBSize;
+      }
+      i++;
+    }
+
+    if(victima == -1){//Todos tenian el bit de referencia en false;
+      victima = siguienteLibreTLB;
+    }
+    clearReferences();
+    siguienteLibreTLB = victima;
+}
+
+void AddrSpace::clearReferences(){
+  for(int i = 0; i<TLBSize; i++){
+    references[i] = false;
+  }
 }
 
 void AddrSpace::actualizarTLB(int vpn) {
     //Actualizo la page table de la pagina saliente con los cambios que se hicieron en el TLB
     this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].use = machine->tlb[siguienteLibreTLB].use;
     this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].dirty = machine->tlb[siguienteLibreTLB].dirty;
+
+    references[siguienteLibreTLB] = true; //Esto es del second chance
 
     //Actualizo la entrada del TLB con el entry actual
     machine->tlb[siguienteLibreTLB] = this->pageTable[vpn];
@@ -455,4 +479,3 @@ void AddrSpace::actualizarTLB(int vpn) {
 //}
 
 #endif
-

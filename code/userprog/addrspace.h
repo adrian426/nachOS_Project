@@ -62,11 +62,7 @@ private:
 
     void actualizarTLB(int vpn);
 
-    void setSecondChance(int vpn);
-
-    void resetSecondChancesAfterPageFault();
-
-    void writeInSWAP(int physicalPage);
+    void clearReferences();
 #endif
 };
 

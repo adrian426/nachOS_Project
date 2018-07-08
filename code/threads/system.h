@@ -53,10 +53,7 @@ extern int siguienteLibreTLB; //Indice del siguiente campo libre en el TLB
 extern BitMap* swapMap; //Mapa de paginas libres en el swap.
 //extern OpenFile* swapFile; //Archivo de swap.
 extern TPI* tpi;
-
-//extern int swapIndex;
-//extern bool SCArray[TLBSize];
-//extern TranslationEntry* IPT[NumPhysPages];
+extern bool references[TLBSize];
 
 #endif
 
