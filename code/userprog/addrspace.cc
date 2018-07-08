@@ -113,7 +113,6 @@ AddrSpace::AddrSpace(OpenFile *executable) {
         } else {
             pageTable[i].readOnly = false;
         }
-        pageTable[i].enSwap = false;
     }
 
 #ifndef VM
@@ -266,87 +265,65 @@ void AddrSpace::setFileName(const char *name) {
 void AddrSpace::liberarFrame() { //Libero un frame utilizando el algoritmo de second chance.
     TranslationEntry* entryActual = nullptr;
     int paginaFisica = -1;
-    int i = 0;
     bool encontrada = false;
 
     while(!encontrada){
-        if(memoryPagesMap->Test(i)){ //Double check para ver que no este revisando un free frame, aunque no deberian haber free frames
-            entryActual = &tpi[i].pageTablePtr[tpi[i].paginaVirtual];
+        if(memoryPagesMap->Test(victimaSwap)){ //Double check para ver que no este revisando un free frame, aunque no deberian haber free frames
+            entryActual = &tpi[victimaSwap].pageTablePtr[tpi[victimaSwap].paginaVirtual];
 
             if(entryActual->use){ //Use = 1. Cambiar use = 0;
                 entryActual->use = false;
             }else{ //Use = 0. Encontre la victima
                 encontrada = true;
-                paginaFisica = i;
+                paginaFisica = victimaSwap;
             }
         }
-        i++;
-        i%= NumPhysPages;
+        victimaSwap = (victimaSwap+1)%NumPhysPages;
     }
 
-//    for(int i = 0; i < NumPhysPages && !encontrada; ++i){
-////        if(memoryPagesMap->Test(i)){ //Double check para ver que no este revisando un free frame, aunque no deberian haber free frames
-//            entryActual = &tpi[i].pageTablePtr[tpi[i].paginaVirtual];
-//            if(entryActual->use){ //Use = 1. Cambiar use = 0;
-//                entryActual->use = false;
-//            }else{ //Use = 0. Encontre la victima
-//                encontrada = true;
-//                paginaFisica = i;
-////                printf("%d\n", paginaFisica);
-//            }
-////        }
-//    }
+    //Reviso si esta página está en el tlb y en ese caso actualizo.
+    for(int i = 0; i < TLBSize; ++i){
+        if(machine->tlb[i].valid && machine->tlb[i].physicalPage == entryActual->physicalPage){
+            machine->tlb[i].valid = false;
+            entryActual->use = machine->tlb[i].use;
+            entryActual->dirty = machine->tlb[i].dirty;
+        }
+    }
 
-    if(encontrada){
-        int paginaEnSwap = swapMap->Find();
-        if(-1 != paginaEnSwap){
+    if(entryActual->dirty){//Si está sucia, la meto al swap.
+        int paginaEnSwap = swapMap->Find(); //Busco un espacio en el swap.
+
+        if(-1 != paginaEnSwap){ //Si encontré espacio en el swap
             entryActual->physicalPage = paginaEnSwap; //Asigno a la pagina fisica la pagina encontrada en el swap.
-            entryActual->valid = false; //Me la llevo al swap, ya no esta valida.
+            this->pageTable[entryActual->virtualPage].physicalPage = paginaEnSwap; //Me aseguro que se actualice el page table
 
-            if(entryActual->dirty){ //Si está sucia, la meto al swap.
-                entryActual->enSwap = true;
-                OpenFile* swapFile = fileSystem->Open("SWAP");
+            OpenFile* swapFile = fileSystem->Open("SWAP");
 
-                if(swapFile != NULL){
-                    swapFile->WriteAt((&machine->mainMemory[paginaFisica*PageSize]),PageSize, paginaEnSwap*PageSize); //Escribo la pagina en el swap.
-                }else{
-                    printf("No se pudo abrir el SWAP FILE\n");
-                    delete swapFile;
-                    ASSERT(false);
-                }
-                memoryPagesMap->Clear(paginaFisica); //Libero la pagina de memoria.
+            if(swapFile != NULL){
+                swapFile->WriteAt((&machine->mainMemory[paginaFisica*PageSize]),PageSize, paginaEnSwap*PageSize); //Escribo la pagina en el swap.
+            }else{
+                printf("No se pudo abrir el SWAP FILE\n");
                 delete swapFile;
-            }else{ //Solo habilito el campo en memoria
-                memoryPagesMap->Clear(paginaFisica);
+                ASSERT(false);
             }
+            memoryPagesMap->Clear(paginaFisica); //Libero la pagina de memoria.
+            delete swapFile;
 
         }else{
             //Swap lleno, no se que hacer
             printf("SWAP FILE LLENO\n");
             ASSERT(false);
         }
-    }else{
-        //No hay paginas en memoria con use en 0, no se que hacer (creo que esto no es factible)
-        printf("hola\n");
+    }else{ //Solo habilito el campo en memoria
+        memoryPagesMap->Clear(paginaFisica);
     }
+    entryActual->valid = false; //Ya no esta valida.
+    this->pageTable[entryActual->virtualPage].valid = false;
 }
 
 void AddrSpace::traerPaginaAMemoria(int vpn) {
     bool valid = this->pageTable[vpn].valid;
     bool dirty = this->pageTable[vpn].dirty;
-//    bool enSwap = this->pageTable[vpn].enSwap;
-
-
-//    if(valid){ //Está en memoria
-//        this->actualizarTLB(vpn);
-//    }else{
-//        if(enSwap){
-//            this->traerPaginaDeSwap(vpn);
-//
-//        }else{
-//            this->traerPaginaDeArchivo(vpn);
-//        }
-//    }
 
     if(!valid && !dirty){ //Debo traer del archivo, o asignar una pagina nueva si es datos no ini o stack.
 
@@ -461,7 +438,7 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
 //    //printf(" %d |",siguienteLibreTLB);
 
 /*Agregue el arreglo de referencias al machine.h y .cc*/
-    int victima = -1;
+    /*int victima = -1;
     int i = sgt;
     bool encontrado = false;
     int recorrido = 0;
@@ -482,7 +459,24 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
     }
     siguienteLibreTLB = victima;
     sgt = (siguienteLibreTLB+1)%TLBSize;
-    clearReferences();
+    clearReferences();*/
+
+    if(tlbMap->NumClear() == 0){ //Solo si el tlb está lleno.
+        int victima = -1;
+        bool encontrado = false;
+        while(!encontrado){
+            if(machine->tlb[victimaTLB].use){
+              machine->tlb[victimaTLB].use = false;
+            } else {
+                encontrado = true;
+                siguienteLibreTLB = victimaTLB;
+                //cout<<"\nfound in: "<<victima<<"\n";
+            }
+            victimaTLB = (victimaTLB+1)%TLBSize;
+        }
+    }else{
+        siguienteLibreTLB = tlbMap->Find();
+    }
 }
 
 void AddrSpace::estadoTLB(){
@@ -507,7 +501,16 @@ void AddrSpace::actualizarTLB(int vpn) {
     //references[siguienteLibreTLB] = true; //Esto es del second chance
 
     //Actualizo la entrada del TLB con el entry actual
-    machine->tlb[siguienteLibreTLB] = this->pageTable[vpn];
+    machine->tlb[siguienteLibreTLB].virtualPage     = this->pageTable[vpn].virtualPage;
+    machine->tlb[siguienteLibreTLB].physicalPage    = this->pageTable[vpn].physicalPage;
+    machine->tlb[siguienteLibreTLB].valid           = this->pageTable[vpn].valid;
+    machine->tlb[siguienteLibreTLB].readOnly        = this->pageTable[vpn].readOnly;
+    machine->tlb[siguienteLibreTLB].use             = this->pageTable[vpn].use;
+    machine->tlb[siguienteLibreTLB].dirty           = this->pageTable[vpn].dirty;
+
+//    machine->tlb[siguienteLibreTLB].
+
+
     this->calcularSigLibreTLB(vpn);
     //this->estadoTLB();
 }

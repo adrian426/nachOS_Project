@@ -44,8 +44,10 @@ TablaSemaforos * tablaSemaforos;
 #ifdef VM
 int contadorPageFaults;
 int siguienteLibreTLB;
-int ultimaVictimaSwap;
+int victimaSwap;
+int victimaTLB;
 BitMap* swapMap;
+BitMap* tlbMap;
 //OpenFile* swapFile;
 TPI* tpi;
 //bool references[TLBSize];
@@ -208,8 +210,11 @@ Initialize(int argc, char **argv)
 #ifdef VM
     contadorPageFaults = 0;
     siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
-    ultimaVictimaSwap = 0;
+    victimaSwap = 0;
+    victimaTLB = 0;
     swapMap = new BitMap(64);
+    tlbMap = new BitMap(TLBSize);
+    tlbMap->Mark(0);
     bool created = fileSystem->Create("SWAP", 8192);
     if(created){
         //swapFile = fileSystem->Open("SWAP");
