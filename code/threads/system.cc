@@ -208,7 +208,7 @@ Initialize(int argc, char **argv)
     contadorPageFaults = 0;
     siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
     swapMap = new BitMap(64);
-    bool created = fileSystem->Create("SWAP", 64*PageSize);
+    bool created = fileSystem->Create("SWAP", 8192);
     if(created){
         //swapFile = fileSystem->Open("SWAP");
     }else{
