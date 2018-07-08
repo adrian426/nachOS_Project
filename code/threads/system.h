@@ -51,7 +51,7 @@ struct TPI{
 extern int contadorPageFaults; //Cuenta cuantos page faults ocurrieron.
 extern int siguienteLibreTLB; //Indice del siguiente campo libre en el TLB
 extern BitMap* swapMap; //Mapa de paginas libres en el swap.
-extern OpenFile* swapFile; //Archivo de swap.
+//extern OpenFile* swapFile; //Archivo de swap.
 extern TPI* tpi;
 
 //extern int swapIndex;

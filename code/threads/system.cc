@@ -45,7 +45,7 @@ TablaSemaforos * tablaSemaforos;
 int contadorPageFaults;
 int siguienteLibreTLB;
 BitMap* swapMap;
-OpenFile* swapFile;
+//OpenFile* swapFile;
 TPI* tpi;
 
 //int swapIndex;
@@ -210,7 +210,7 @@ Initialize(int argc, char **argv)
     swapMap = new BitMap(64);
     bool created = fileSystem->Create("SWAP", 64*PageSize);
     if(created){
-        swapFile = fileSystem->Open("SWAP");
+        //swapFile = fileSystem->Open("SWAP");
     }else{
         printf("El SWAP no pudo ser creado.");
         ASSERT(false);

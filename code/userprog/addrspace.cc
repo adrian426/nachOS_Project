@@ -282,8 +282,17 @@ void AddrSpace::liberarFrame() { //Libero un frame utilizando el algoritmo de se
         if(-1 != paginaEnSwap){
             entryActual->physicalPage = paginaEnSwap; //Asigno a la pagina fisica la pagina encontrada en el swap.
             entryActual->valid = false; //Me la llevo al swap, ya no esta valida.
-            swapFile->WriteAt((&machine->mainMemory[paginaFisica*PageSize]),PageSize, paginaEnSwap*PageSize); //Escribo la pagina en el swap.
+            OpenFile* swapFile = fileSystem->Open("SWAP");
+
+            if(swapFile != NULL){
+                swapFile->WriteAt((&machine->mainMemory[paginaFisica*PageSize]),PageSize, paginaEnSwap*PageSize); //Escribo la pagina en el swap.
+            }else{
+                printf("No se pudo abrir el SWAP FILE\n");
+                delete swapFile;
+                ASSERT(false);
+            }
             memoryPagesMap->Clear(paginaFisica); //Libero la pagina de memoria.
+            delete swapFile;
         }else{
             //Swap lleno, no se que hacer
             printf("SWAP FILE LLENO\n");
@@ -367,9 +376,15 @@ void AddrSpace::traerPaginaDeSwap(int vpn) {
     int pagEnSwap = this->pageTable[vpn].physicalPage;
     int freeFrame = memoryPagesMap->Find();
 
-    swapFile->ReadAt(&machine->mainMemory[freeFrame * PageSize],PageSize, pagEnSwap * PageSize);
+    OpenFile* swapFile = fileSystem->Open("SWAP");
 
-    swapMap->Clear(pagEnSwap); //Libero el espacio en el swap
+    if(swapFile != NULL){
+        swapFile->ReadAt(&machine->mainMemory[freeFrame * PageSize],PageSize, pagEnSwap * PageSize);
+        swapMap->Clear(pagEnSwap); //Libero el espacio en el swap
+    }else{
+        printf("No se pudo abrir el SWAP FILE\n");
+        ASSERT(false);
+    }
 
     this->pageTable[vpn].valid = true; //Ahora esta página es válida
     this->pageTable[vpn].physicalPage = freeFrame; //La página física corresponde al free frame recién encontrado
