@@ -224,14 +224,20 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
                 entry = &tlb[i];            // FOUND!
                 references[i] = true;
                 printf("\tFOUND: %d\n",tlb[i].virtualPage);
+              //  printf("Estado Prioridades Antes: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                 if(tlbMap->NumClear() == 0){//Esto para manejar el fifo con second chance.
-                  int indexTMP = i;
-                  for(int j = i+1; j<TLBSize; j++){
+                  int indexTMP = 0;
+                  //printf("Done\n");
+                  while(age[indexTMP] != i){
+                    indexTMP++;
+                  }
+                  for(int j = indexTMP+1; j<TLBSize; j++){
                     int tmp = age[j-1];
                     age[j-1] = age[j];
                     age[j] = tmp;
                   }
-                  age[TLBSize] = indexTMP;
+                  //age[TLBSize] = indexTMP;
+                  printf("Estado Prioridades Despues: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                 }
                 break;
             }

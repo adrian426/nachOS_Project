@@ -228,7 +228,7 @@ Initialize(int argc, char **argv)
       machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
       machine->age[index] = -1;
     }
-    tlbMap->Find();
+    tlbMap->Find();//Ocupo el primer campo ya que no se que hacer con el primer pagefault.
     machine->age[0] = 0;
     listaMemoria = new list<TranslationEntry*>();
     listaTLB = new list<TranslationEntry*>();
