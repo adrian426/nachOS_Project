@@ -223,6 +223,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
             if (tlb[i].valid && (tlb[i].virtualPage == (int) vpn)) {
                 entry = &tlb[i];            // FOUND!
                 references[i] = true;
+                printf("\tFOUND: %d\n",tlb[i].virtualPage);
                 if(tlbMap->NumClear() == 0){//Esto para manejar el fifo con second chance.
                   int indexTMP = i;
                   for(int j = i+1; j<TLBSize; j++){

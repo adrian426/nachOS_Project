@@ -440,9 +440,10 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
     int victima = -1;
     int prioridad;
     bool encontrado = false;
+    this->estadoTLB(vpn);
     for(int index = 0; index < TLBSize; index++){
       prioridad = machine->age[index];
-      if(machine->tlb[prioridad].use){
+      if(machine->tlb[prioridad].use/*machine->references[prioridad]*/){
         machine->tlb[prioridad].use = false;
       } else {
         victima = prioridad;
@@ -461,6 +462,8 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
       machine->age[index] = tmp;
     }
     siguienteLibreTLB = victima;
+    this->estadoTLB(vpn);
+    //this->clearReferences();
   }else{
     int j = 0;
     while(machine->age[j] != -1) j++;
@@ -468,20 +471,22 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
       machine->age[j] = siguienteLibreTLB;
 
   }
-  this->estadoTLB(vpn);
 }
 
 void AddrSpace::estadoTLB(int vpn){
-  cout<<0<<" Usos: "<<machine->references[0]<<" Tiene:"<<machine->tlb[0].virtualPage<<"\n";
-  cout<<1<<" Usos: "<<machine->references[1]<<" Tiene:"<<machine->tlb[1].virtualPage<<"\n";
-  cout<<2<<" Usos: "<<machine->references[2]<<" Tiene:"<<machine->tlb[2].virtualPage<<"\n";
-  cout<<3<<" Usos: "<<machine->references[3]<<" Tiene:"<<machine->tlb[3].virtualPage<<"\n";
+  cout<<"Entra: "<<vpn<<"\n";
+  cout<<0<<" Usos: "<<machine->tlb[0].use<<" Tiene:"<<machine->tlb[0].virtualPage<<"\n";
+  cout<<1<<" Usos: "<<machine->tlb[1].use<<" Tiene:"<<machine->tlb[1].virtualPage<<"\n";
+  cout<<2<<" Usos: "<<machine->tlb[2].use<<" Tiene:"<<machine->tlb[2].virtualPage<<"\n";
+  cout<<3<<" Usos: "<<machine->tlb[3].use<<" Tiene:"<<machine->tlb[3].virtualPage<<"\n";
+  cout<<"Prioridades:\n"<<machine->age[0]<<"\n"<<machine->age[1]<<"\n"<<machine->age[2]<<"\n"<<machine->age[3]<<"\n";
   cout<<"Current index: "<<siguienteLibreTLB<<", Next Index: "<<sgt<<"\n";
 }
 
 void AddrSpace::clearReferences(){
   for(int i = 0; i<TLBSize; i++){
     machine->references[i] = false;
+    machine->tlb[i].use = false;
   }
 }
 
