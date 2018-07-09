@@ -439,37 +439,35 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
   if(tlbMap->NumClear() == 0){ //Solo si el tlb está lleno.
     int victima = -1;
     int prioridad;
-    bool encontrado = false;
-    // this->estadoTLB(vpn);
     for(int index = 0; index < TLBSize; index++){
       prioridad = machine->age[index];
-      if(machine->tlb[prioridad].use/*machine->references[prioridad]*/){
+      if(machine->tlb[prioridad].use == true){
         machine->tlb[prioridad].use = false;
       } else {
         victima = prioridad;
-        prioridad = index;
         index = TLBSize;
       }
     }
-    if(victima == -1){
-      victima = machine->age[TLBSize];
-      prioridad = TLBSize;
+    if(victima == -1){//Todos tenia el set bit en true
+      victima = machine->age[0];
     }
-
-    for(int index = prioridad+1; index < TLBSize; index++){
-      int tmp = machine->age[index-1];
-      machine->age[index-1] = machine->age[index];
-      machine->age[index] = tmp;
+    //Para actualizar lista de vejez.
+    prioridad = 0;
+    while(machine->age[prioridad] != victima){
+      prioridad++;
+    }
+    this->estadoTLB(vpn);
+    for(int k = prioridad; k < TLBSize; k++){
+      int tmp = machine->age[k-1];
+      machine->age[k-1] = machine->age[k];
+      machine->age[k] = tmp;
     }
     siguienteLibreTLB = victima;
-    //this->estadoTLB(vpn);
-    //this->clearReferences();
   }else{
     int j = 0;
     while(machine->age[j] != -1) j++;
       siguienteLibreTLB = tlbMap->Find();
       machine->age[j] = siguienteLibreTLB;
-
   }
 }
 
