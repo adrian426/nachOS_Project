@@ -223,7 +223,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
             if (tlb[i].valid && (tlb[i].virtualPage == (int) vpn)) {
                 entry = &tlb[i];            // FOUND!
                 references[i] = true;
-                printf("\tFOUND: %d\n",tlb[i].virtualPage);
+                // printf("\tFOUND: %d\n",tlb[i].virtualPage);
               //  printf("Estado Prioridades Antes: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                 if(tlbMap->NumClear() == 0){//Esto para manejar el fifo con second chance.
                   int indexTMP = 0;
@@ -237,7 +237,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
                     age[j] = tmp;
                   }
                   //age[TLBSize] = indexTMP;
-                  printf("Estado Prioridades Despues: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
+                  // printf("Estado Prioridades Despues: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                 }
                 break;
             }

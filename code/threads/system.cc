@@ -50,7 +50,7 @@ BitMap* swapMap;
 BitMap* tlbMap;
 list<TranslationEntry*>* listaMemoria;
 list<TranslationEntry*>* listaTLB;
-//OpenFile* swapFile;
+OpenFile* swapFile;
 TPI* tpi;
 //bool references[TLBSize];
 //int swapIndex;
@@ -218,7 +218,7 @@ Initialize(int argc, char **argv)
     tlbMap = new BitMap(TLBSize);
     bool created = fileSystem->Create("SWAP", 8192);
     if(created){
-        //swapFile = fileSystem->Open("SWAP");
+        swapFile = fileSystem->Open("SWAP");
     }else{
         printf("El SWAP no pudo ser creado.");
         ASSERT(false);
@@ -278,6 +278,7 @@ Cleanup()
 #endif
 
 #ifdef VM
+    delete swapFile;
     fileSystem->Remove("SWAP");
 #endif
 

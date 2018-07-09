@@ -280,17 +280,17 @@ void AddrSpace::mandarASwap(TranslationEntry* victima){
             victima->physicalPage = paginaEnSwap; //Asigno a la pagina fisica la pagina encontrada en el swap.
             this->pageTable[victima->virtualPage].physicalPage = paginaEnSwap; //Me aseguro que se actualice el page table
 
-            OpenFile* swapFile = fileSystem->Open("SWAP");
+            //OpenFile* swapFile = fileSystem->Open("SWAP");
 
-            if(swapFile != NULL){
+            // if(swapFile != NULL){
                 swapFile->WriteAt((&machine->mainMemory[paginaFisica*PageSize]),PageSize, paginaEnSwap*PageSize); //Escribo la pagina en el swap.
-            }else{
-                printf("No se pudo abrir el SWAP FILE\n");
-                delete swapFile;
-                ASSERT(false);
-            }
+            // }else{
+            //     printf("No se pudo abrir el SWAP FILE\n");
+            //     delete swapFile;
+            //     ASSERT(false);
+            // }
             memoryPagesMap->Clear(paginaFisica); //Libero la pagina de memoria.
-            delete swapFile;
+            // delete swapFile;
 
         }else{
             //Swap lleno, no se que hacer
@@ -410,15 +410,15 @@ void AddrSpace::traerPaginaDeSwap(int vpn) {
     int pagEnSwap = this->pageTable[vpn].physicalPage;
     int freeFrame = memoryPagesMap->Find();
 
-    OpenFile* swapFile = fileSystem->Open("SWAP");
+    // OpenFile* swapFile = fileSystem->Open("SWAP");
 
-    if(swapFile != NULL){
+    // if(swapFile != NULL){
         swapFile->ReadAt(&machine->mainMemory[freeFrame * PageSize],PageSize, pagEnSwap * PageSize);
         swapMap->Clear(pagEnSwap); //Libero el espacio en el swap
-    }else{
-        printf("No se pudo abrir el SWAP FILE\n");
-        ASSERT(false);
-    }
+    // }else{
+    //     printf("No se pudo abrir el SWAP FILE\n");
+    //     ASSERT(false);
+    // }
 
     this->pageTable[vpn].valid = true; //Ahora esta página es válida
     this->pageTable[vpn].physicalPage = freeFrame; //La página física corresponde al free frame recién encontrado
@@ -440,7 +440,7 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
     int victima = -1;
     int prioridad;
     bool encontrado = false;
-    this->estadoTLB(vpn);
+    // this->estadoTLB(vpn);
     for(int index = 0; index < TLBSize; index++){
       prioridad = machine->age[index];
       if(machine->tlb[prioridad].use/*machine->references[prioridad]*/){
