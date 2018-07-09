@@ -436,8 +436,8 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
         }
       }
       if(victima == -1){
-        victima = machine->age[0];
-        prioridad = 0;
+        victima = machine->age[TLBSize];
+        prioridad = TLBSize;
       }
 
       for(int index = prioridad+1; index < TLBSize; index++){
@@ -445,6 +445,7 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
         machine->age[index-1] = machine->age[index];
         machine->age[index] = tmp;
       }
+      siguienteLibreTLB = victima;
     }else{
       int j = 0;
       while(machine->age[j] != -1) j++;
@@ -461,6 +462,7 @@ void AddrSpace::estadoTLB(int vpn){
   cout<<1<<" Usos: "<<machine->tlb[1].use<<" Tiene:"<<machine->tlb[1].virtualPage<<"\n";
   cout<<2<<" Usos: "<<machine->tlb[2].use<<" Tiene:"<<machine->tlb[2].virtualPage<<"\n";
   cout<<3<<" Usos: "<<machine->tlb[3].use<<" Tiene:"<<machine->tlb[3].virtualPage<<"\n";
+  cout<<"Proridades: "<<machine->age[0]<<"\n"<<machine->age[1]<<"\n"<<machine->age[2]<<"\n"<<machine->age[3]<<"\n";
   cout<<"Current index: "<<siguienteLibreTLB<<", Next Index: "<<sgt<<"\n";
 }
 
