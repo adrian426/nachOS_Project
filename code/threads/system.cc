@@ -216,7 +216,6 @@ Initialize(int argc, char **argv)
     victimaTLB = 0;
     swapMap = new BitMap(64);
     tlbMap = new BitMap(TLBSize);
-    tlbMap->Mark(0);
     bool created = fileSystem->Create("SWAP", 8192);
     if(created){
         //swapFile = fileSystem->Open("SWAP");

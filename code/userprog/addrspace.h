@@ -66,6 +66,8 @@ private:
 
     void estadoTLB();
 
+    void mandarASwap(TranslationEntry* victima);
+
 #endif
 };
 
