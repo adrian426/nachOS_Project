@@ -328,65 +328,6 @@ void AddrSpace::liberarFrame(int vpn){
     }
 }
 
-//void AddrSpace::liberarFrame(int vpn) { //Libero un frame utilizando el algoritmo de second chance.
-//    TranslationEntry* entryActual = nullptr;
-//    int paginaFisica = -1;
-//    bool encontrada = false;
-//
-//    while(!encontrada){
-//        if(memoryPagesMap->Test(victimaSwap)){ //Double check para ver que no este revisando un free frame, aunque no deberian haber free frames
-//            entryActual = &tpi[victimaSwap].pageTablePtr[tpi[victimaSwap].paginaVirtual];
-//
-//            if(entryActual->use){ //Use = 1. Cambiar use = 0;
-//                entryActual->use = false;
-//            }else{ //Use = 0. Encontre la victima
-//                encontrada = true;
-//                paginaFisica = victimaSwap;
-//            }
-//        }
-//        victimaSwap = (victimaSwap+1)%NumPhysPages;
-//    }
-//
-//    //Reviso si esta página está en el tlb y en ese caso actualizo.
-//    for(int i = 0; i < TLBSize; ++i){
-//        if(machine->tlb[i].valid && machine->tlb[i].physicalPage == entryActual->physicalPage){
-//            machine->tlb[i].valid = false;
-//            entryActual->use = machine->tlb[i].use;
-//            entryActual->dirty = machine->tlb[i].dirty;
-//        }
-//    }
-//
-//    if(entryActual->dirty){//Si está sucia, la meto al swap.
-//        int paginaEnSwap = swapMap->Find(); //Busco un espacio en el swap.
-//
-//        if(-1 != paginaEnSwap){ //Si encontré espacio en el swap
-//            entryActual->physicalPage = paginaEnSwap; //Asigno a la pagina fisica la pagina encontrada en el swap.
-//            this->pageTable[entryActual->virtualPage].physicalPage = paginaEnSwap; //Me aseguro que se actualice el page table
-//
-//            OpenFile* swapFile = fileSystem->Open("SWAP");
-//
-//            if(swapFile != NULL){
-//                swapFile->WriteAt((&machine->mainMemory[paginaFisica*PageSize]),PageSize, paginaEnSwap*PageSize); //Escribo la pagina en el swap.
-//            }else{
-//                printf("No se pudo abrir el SWAP FILE\n");
-//                delete swapFile;
-//                ASSERT(false);
-//            }
-//            memoryPagesMap->Clear(paginaFisica); //Libero la pagina de memoria.
-//            delete swapFile;
-//
-//        }else{
-//            //Swap lleno, no se que hacer
-//            printf("SWAP FILE LLENO\n");
-//            ASSERT(false);
-//        }
-//    }else{ //Solo habilito el campo en memoria
-//        memoryPagesMap->Clear(paginaFisica);
-//    }
-//    entryActual->valid = false; //Ya no esta valida.
-//    this->pageTable[entryActual->virtualPage].valid = false;
-//}
-
 void AddrSpace::traerPaginaAMemoria(int vpn) {
     TranslationEntry* nuevoEntry = &(this->pageTable[vpn]);
     bool valid = this->pageTable[vpn].valid;
@@ -491,70 +432,46 @@ void AddrSpace::traerPaginaDeSwap(int vpn) {
 }
 
 void AddrSpace::calcularSigLibreTLB(int vpn){
-    //Por ahora lo calcula con fifo
-    int sigLibre = (siguienteLibreTLB+1)%TLBSize;
-    siguienteLibreTLB = sigLibre;
-    //En second chance.
-    //printf("%d",siguienteLibreTLB);
-//    int victima = -1;
-//    int i = (siguienteLibreTLB+1)%4;
-//    for(int j = 0; j<TLBSize; j++){
-//      if(!references[i%TLBSize]){
-//        victima = i%TLBSize;
-//      }
-//      i++;
-//    }
-//
-//    if(victima == -1){//Todos tenian el bit de referencia en false;
-//      victima = siguienteLibreTLB;
-//    }
-//    clearReferences();
-//    siguienteLibreTLB = victima;
-//    //printf(" %d |",siguienteLibreTLB);
+  //Por ahora lo calcula con fifo
+  /*int sigLibre = (siguienteLibreTLB+1)%TLBSize;
+  siguienteLibreTLB = sigLibre;*/
 
-/*Agregue el arreglo de referencias al machine.h y .cc*/
-    /*int victima = -1;
-    int i = sgt;
+  if(tlbMap->NumClear() == 0){ //Solo si el tlb está lleno.
+    int victima = -1;
+    int prioridad;
     bool encontrado = false;
-    int recorrido = 0;
-    while(!encontrado){
-//        if(machine->tlb[i].valid){
-            if(machine->references[i]){
-              machine->references[i] = false;
-            } else {
-                encontrado = true;
-                victima = i;
-                //cout<<"\nfound in: "<<victima<<"\n";
-            }
-            i++;
-            i %= TLBSize;
-//        }else{
-//            victima = i;
-//        }
+    for(int index = 0; index < TLBSize; index++){
+      prioridad = machine->age[index];
+      if(machine->tlb[prioridad].use){
+        machine->tlb[prioridad].use = false;
+      } else {
+        victima = prioridad;
+        prioridad = index;
+        index = TLBSize;
+      }
+    }
+    if(victima == -1){
+      victima = machine->age[TLBSize];
+      prioridad = TLBSize;
+    }
+
+    for(int index = prioridad+1; index < TLBSize; index++){
+      int tmp = machine->age[index-1];
+      machine->age[index-1] = machine->age[index];
+      machine->age[index] = tmp;
     }
     siguienteLibreTLB = victima;
-    sgt = (siguienteLibreTLB+1)%TLBSize;
-    clearReferences();*/
+  }else{
+    int j = 0;
+    while(machine->age[j] != -1) j++;
+      siguienteLibreTLB = tlbMap->Find();
+      machine->age[j] = siguienteLibreTLB;
 
-//    if(tlbMap->NumClear() == 0){ //Solo si el tlb está lleno.
-//        int victima = -1;
-//        bool encontrado = false;
-//        while(!encontrado){
-//            if(machine->tlb[victimaTLB].use){
-//              machine->tlb[victimaTLB].use = false;
-//            } else {
-//                encontrado = true;
-//                siguienteLibreTLB = victimaTLB;
-//                //cout<<"\nfound in: "<<victima<<"\n";
-//            }
-//            victimaTLB = (victimaTLB+1)%TLBSize;
-//        }
-//    }else{
-//        siguienteLibreTLB = tlbMap->Find();
-//    }
+  }
+  this->estadoTLB(vpn);
 }
 
-void AddrSpace::estadoTLB(){
+void AddrSpace::estadoTLB(int vpn){
   cout<<0<<" Usos: "<<machine->references[0]<<" Tiene:"<<machine->tlb[0].virtualPage<<"\n";
   cout<<1<<" Usos: "<<machine->references[1]<<" Tiene:"<<machine->tlb[1].virtualPage<<"\n";
   cout<<2<<" Usos: "<<machine->references[2]<<" Tiene:"<<machine->tlb[2].virtualPage<<"\n";

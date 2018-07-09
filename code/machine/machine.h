@@ -181,6 +181,7 @@ class Machine {
 
     TranslationEntry *pageTable;
 		bool references[TLBSize];
+		int age[TLBSize];
     unsigned int pageTableSize;
 
   private:

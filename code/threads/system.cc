@@ -224,8 +224,12 @@ Initialize(int argc, char **argv)
         ASSERT(false);
     }
     tpi = new TPI[NumPhysPages];
-    for(int index = 0; index < TLBSize; index++)machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
-
+    for(int index = 0; index < TLBSize; index++){
+      machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
+      machine->age[index] = -1;
+    }
+    tlbMap->Find();
+    machine->age[0] = 0;
     listaMemoria = new list<TranslationEntry*>();
     listaTLB = new list<TranslationEntry*>();
 

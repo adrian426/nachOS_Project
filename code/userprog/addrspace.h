@@ -64,7 +64,7 @@ private:
 
     void clearReferences();
 
-    void estadoTLB();
+    void estadoTLB(int vpn);
 
     void mandarASwap(TranslationEntry* victima);
 
