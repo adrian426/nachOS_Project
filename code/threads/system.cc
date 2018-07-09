@@ -42,22 +42,12 @@ TablaSemaforos * tablaSemaforos;
 #endif
 
 #ifdef VM
-int contadorPageFaults;
 int siguienteLibreTLB;
-int victimaSwap;
-int victimaTLB;
 BitMap* swapMap;
 BitMap* tlbMap;
 list<TranslationEntry*>* listaMemoria;
-list<TranslationEntry*>* listaTLB;
 OpenFile* swapFile;
 TPI* tpi;
-//bool references[TLBSize];
-//int swapIndex;
-//bool SCArray[TLBSize];//Para marcar las que se han usado mas repetido con 1.
-//TranslationEntry* IPT[NumPhysPages];//El que yo digo.
-
-
 #endif
 
 #ifdef NETWORK
@@ -210,10 +200,7 @@ Initialize(int argc, char **argv)
 #endif
 
 #ifdef VM
-    contadorPageFaults = 0;
     siguienteLibreTLB = 0; //Comienza siendo el primer campo del tlb.
-    victimaSwap = 0;
-    victimaTLB = 0;
     swapMap = new BitMap(64);
     tlbMap = new BitMap(TLBSize);
     bool created = fileSystem->Create("SWAP", 8192);
@@ -225,21 +212,13 @@ Initialize(int argc, char **argv)
     }
     tpi = new TPI[NumPhysPages];
     for(int index = 0; index < TLBSize; index++){
-      machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
       machine->age[index] = -1;
     }
-    tlbMap->Find();//Ocupo el primer campo ya que no se que hacer con el primer pagefault.
+    tlbMap->Find();//Se marca el primer campo pues la primera entrada al tlb lo utilizará.
     machine->age[0] = 0;
     listaMemoria = new list<TranslationEntry*>();
-    listaTLB = new list<TranslationEntry*>();
 
-//    swapIndex = 0;
-//    for(int index = 0; index < TLBSize; index++)SCArray[index] = false;//Inializo el arreglo de second chance.
-//    for(int index = 0; index < NumPhysPages; index++){//Inicializo la tabla de paginas invertida.
-//      IPT[index]=0x0;
-//      tpi[index]->pt = 0x0;
-//      tpi[index]->vpn = -1;
-//    }
+
 
 #endif
 

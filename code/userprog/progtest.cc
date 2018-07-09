@@ -32,7 +32,9 @@ StartProcess(const char *filename) {
     }
 
     space = new AddrSpace(executable);
+    #ifdef VM
     space->setFileName(filename);
+    #endif
     currentThread->space = space;
 
     delete executable;            // close file

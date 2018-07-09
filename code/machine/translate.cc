@@ -223,12 +223,9 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
         for (entry = NULL, i = 0; i < TLBSize; i++)
             if (tlb[i].valid && (tlb[i].virtualPage == (int) vpn)) {
                 entry = &tlb[i];            // FOUND!
-                references[i] = true;
-                //printf("\tFOUND: %d\n",tlb[i].virtualPage);
-                //printf("Estado Prioridades Antes: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
+                #ifdef VM
                 if(tlbMap->NumClear() == 0){//Esto para manejar el fifo con second chance.
                   int indexTMP = 0;
-                  //printf("Done\n");
                   while(age[indexTMP] != i){
                     indexTMP++;
                   }
@@ -237,9 +234,8 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
                     age[j-1] = age[j];
                     age[j] = tmp;
                   }
-                  //age[TLBSize] = indexTMP;
-                //  printf("Estado Prioridades Despues: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                 }
+                #endif
                 break;
             }
         if (entry == NULL) {                // not found
