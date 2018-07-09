@@ -467,9 +467,6 @@ void ExceptionHandler(ExceptionType which) {
         NachosPageFault();
     }
 #endif
-    else if (which == PageFaultException) {
-        NachosPageFault();
-    }
     else if (which == ReadOnlyException) {
         printf("ReadOnlyException\n");
         ASSERT(false);

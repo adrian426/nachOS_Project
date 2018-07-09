@@ -456,10 +456,9 @@ void AddrSpace::calcularSigLibreTLB(int vpn){
     while(machine->age[prioridad] != victima){
       prioridad++;
     }
-    this->estadoTLB(vpn);
-    for(int k = prioridad; k < TLBSize; k++){
-      int tmp = machine->age[k-1];
-      machine->age[k-1] = machine->age[k];
+    for(int k = prioridad; k < TLBSize-1; k++){
+      int tmp = machine->age[k+1];
+      machine->age[k+1] = machine->age[k];
       machine->age[k] = tmp;
     }
     siguienteLibreTLB = victima;
@@ -477,7 +476,7 @@ void AddrSpace::estadoTLB(int vpn){
   cout<<1<<" Usos: "<<machine->tlb[1].use<<" Tiene:"<<machine->tlb[1].virtualPage<<"\n";
   cout<<2<<" Usos: "<<machine->tlb[2].use<<" Tiene:"<<machine->tlb[2].virtualPage<<"\n";
   cout<<3<<" Usos: "<<machine->tlb[3].use<<" Tiene:"<<machine->tlb[3].virtualPage<<"\n";
-  cout<<"Current index: "<<siguienteLibreTLB<<", Next Index: "<<sgt<<"\n";
+  cout<<"Current index: "<<siguienteLibreTLB<<"\n";
 }
 
 void AddrSpace::clearReferences(){
@@ -488,6 +487,7 @@ void AddrSpace::clearReferences(){
 }
 
 void AddrSpace::actualizarTLB(int vpn) {
+    this->calcularSigLibreTLB(vpn);
     //Actualizo la page table de la pagina saliente con los cambios que se hicieron en el TLB
     this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].use = machine->tlb[siguienteLibreTLB].use;
     this->pageTable[machine->tlb[siguienteLibreTLB].virtualPage].dirty = machine->tlb[siguienteLibreTLB].dirty;
@@ -501,53 +501,7 @@ void AddrSpace::actualizarTLB(int vpn) {
     machine->tlb[siguienteLibreTLB].readOnly        = this->pageTable[vpn].readOnly;
     machine->tlb[siguienteLibreTLB].use             = this->pageTable[vpn].use;
     machine->tlb[siguienteLibreTLB].dirty           = this->pageTable[vpn].dirty;
-
-//    machine->tlb[siguienteLibreTLB].
-
-
-    this->calcularSigLibreTLB(vpn);
-    //this->estadoTLB();
+    //this->estadoTLB(vpn);
+    //printf("Estado Prioridades Despues: %d,%d,%d,%d\n", machine->age[0],machine->age[1],machine->age[2],machine->age[3]);
 }
-
-//Jeje comenté lo que era suyo <3
-
-//void writeInSWAP(int physicalPage){
-//  int swapP = swapMap->Find();//swapP = pagina del swap.
-//  if(swapP == -1){
-//    DEBUG('a',"Swap lleno.");
-//    ASSERT(false);
-//  }
-//
-//  OpenFile* SWAPF = fileSystem->Open("SWAP");//SWAPF = arhivo de swap.
-//  IPT[physicalPage]->valid = false;
-//  IPT[physicalPage]->physicalPage = swapP;
-//  /*
-//  TranslationEntry* page;
-//  for(int i = 0; i < NumPhysPages;i++){
-//    if(tpi[i]->vpn == physicalPage){
-//      page = tpi[i]->pt;
-//      i = NumPhysPages;
-//    }
-//  }
-//  */
-//  swapThingy->WriteAt((&machine->mainMemory[physicalPage*PageSize]),PageSize, swapP*PageSize);
-//  //Agregu'e un indice global para tener el ultimo al que se escribio en el swap.
-//  //Falta poner a que se limpie lo que estaba ocupando en memoria.
-//  delete SWAPF;
-//}
-//void setSecondChance(int virtualPage) {//Creo que esto es una estupidez que salia con .use del tlb :(.
-//    for (int i = 0; i < TLBSize; i++) {
-//        if (machine->tlb[i].virtualPage == virtualPage) {
-//            SCArray[i] = true;
-//        }
-//    }
-//}
-//
-//void resetSecondChancesAfterPageFault() {//este creo que si se puede usar.
-//    for (int i = 0; i < TLBSize; i++) {
-//        SCArray[i] = false;
-//        //machine->tlb[i].use = false;???
-//    }
-//}
-
 #endif

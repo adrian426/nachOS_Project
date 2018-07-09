@@ -33,6 +33,7 @@
 #include "machine.h"
 #include "addrspace.h"
 #include "system.h"
+#include "stats.h"
 
 // Routines for converting Words and Short Words to and from the
 // simulated machine's format of little endian.  These end up
@@ -223,7 +224,8 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
             if (tlb[i].valid && (tlb[i].virtualPage == (int) vpn)) {
                 entry = &tlb[i];            // FOUND!
                 references[i] = true;
-                // printf("\tFOUND: %d\n",tlb[i].virtualPage);
+                //printf("\tFOUND: %d\n",tlb[i].virtualPage);
+                //printf("Estado Prioridades Antes: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                 if(tlbMap->NumClear() == 0){//Esto para manejar el fifo con second chance.
                   int indexTMP = 0;
                   //printf("Done\n");
@@ -235,9 +237,8 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
                     age[j-1] = age[j];
                     age[j] = tmp;
                   }
-                  printf("Estado Prioridades Antes: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                   //age[TLBSize] = indexTMP;
-                  // printf("Estado Prioridades Despues: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
+                //  printf("Estado Prioridades Despues: %d,%d,%d,%d\n", age[0],age[1],age[2],age[3]);
                 }
                 break;
             }
