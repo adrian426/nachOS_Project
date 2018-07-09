@@ -46,6 +46,7 @@ int contadorPageFaults;
 int siguienteLibreTLB;
 int victimaSwap;
 int victimaTLB;
+TranslationEntry* oldestOne[TLBSize];
 BitMap* swapMap;
 BitMap* tlbMap;
 //OpenFile* swapFile;
@@ -201,7 +202,7 @@ Initialize(int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
     memoryPagesMap = new BitMap(NumPhysPages);
-	tablaSemaforos = new TablaSemaforos();
+	   tablaSemaforos = new TablaSemaforos();
     openFilesTable = new NachosOpenFilesTable();
     ConsoleSem = new Semaphore("Console",1);
     availableThreadIds = new BitMap(200); //Max de 200 diferentes threads.
@@ -223,7 +224,11 @@ Initialize(int argc, char **argv)
         ASSERT(false);
     }
     tpi = new TPI[NumPhysPages];
-    for(int index = 0; index < TLBSize; index++)machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
+    for(int index = 0; index < TLBSize; index++){
+      machine->references[index] = false;//Inializo el arreglo de referencias para second chance.
+      machine->age[index] = -1;
+    }
+    machine->age[0] = 0;
 //    swapIndex = 0;
 //    for(int index = 0; index < TLBSize; index++)SCArray[index] = false;//Inializo el arreglo de second chance.
 //    for(int index = 0; index < NumPhysPages; index++){//Inicializo la tabla de paginas invertida.

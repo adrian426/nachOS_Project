@@ -223,6 +223,15 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing) {
             if (tlb[i].valid && (tlb[i].virtualPage == (int) vpn)) {
                 entry = &tlb[i];            // FOUND!
                 references[i] = true;
+                if(tlbMap->NumClear() == 0){//Esto para manejar el fifo con second chance.
+                  int indexTMP = i;
+                  for(int j = i+1; j<TLBSize; j++){
+                    int tmp = age[j-1];
+                    age[j-1] = age[j];
+                    age[j] = tmp;
+                  }
+                  age[TLBSize] = indexTMP;
+                }
                 break;
             }
         if (entry == NULL) {                // not found

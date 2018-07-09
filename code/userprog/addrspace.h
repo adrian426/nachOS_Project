@@ -63,7 +63,7 @@ private:
     void actualizarTLB(int vpn);
 
     void clearReferences();
-    void estadoTLB();
+    void estadoTLB(int vpn);
 #endif
 };
 
